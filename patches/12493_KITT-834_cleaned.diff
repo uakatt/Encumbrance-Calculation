@@ -1,0 +1,29 @@
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 12492)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 12493)
+@@ -55,7 +55,7 @@
+             }
+             BatchSortUtil.sortTextFileWithFields(inputFileName, outputFileName, new LaborEncumbranceBalanceOriginEntrySortComparator());
+             inputFile.setLastModified(jobRunDate.getTime());
+-            inputFile.renameTo(new File( processedDirectory, LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION ) );
++            inputFile.renameTo(new File( processedDirectory, LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "-" + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION ) );
+             doneFile.delete();
+         } else {
+             if ( inputFile.exists() && !doneFile.exists() ) {
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 12492)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 12493)
+@@ -34,9 +34,9 @@
+         String balanceFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+         File balanceFile = new File( balanceFileName );
+         if ( inputFile.exists() && balanceFile.exists() ) {
+-            String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + "-" + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+             File outputFile = new File( outputFileName );
+-            String errorFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            String errorFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + "-" + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+             File errorFile = new File( errorFileName );
+             
+             getLaborEncumbranceAdjustmentService().buildEncumbranceDifferenceFile(inputFile,balanceFile,outputFile,errorFile);

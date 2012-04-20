@@ -1,0 +1,869 @@
+Index: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 11538)
++++ financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 11539)
+@@ -58,14 +58,11 @@
+     File balanceFile;
+     File outputFile;
+     File errorFile;
+-    File nightlyOutFile;
+-    File nightlyOutBackupFile;
+     File laborReportsDirectory;
+     
+     LaborBuildEncumbranceBalanceFileStep buildEncumbranceBalanceFileStep;
+     LaborSortEncumbranceFileStep sortEncumbranceFileStep;
+     LaborCalculateEncumbranceAdjustmentsStep adjustmentsStep;
+-    LaborAppendEncumbranceTransactionsStep appendStep;
+     
+     public LaborEncumbranceAdjustmentJobTest() {
+         // load testing data properties
+@@ -76,7 +73,6 @@
+         Logger.getLogger(LaborSortEncumbranceFileStep.class).setLevel(Level.DEBUG);
+         Logger.getLogger(LaborBuildEncumbranceBalanceFileStep.class).setLevel(Level.DEBUG);
+         Logger.getLogger(LaborCalculateEncumbranceAdjustmentsStep.class).setLevel(Level.DEBUG);
+-        Logger.getLogger(LaborAppendEncumbranceTransactionsStep.class).setLevel(Level.DEBUG);
+     }
+ 
+     /**
+@@ -95,7 +91,6 @@
+             buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
+             sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
+             adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
+-            appendStep = SpringContext.getBean(LaborAppendEncumbranceTransactionsStep.class,"laborAppendEncumbranceTransactionsStep");
+             // get file names
+             balanceFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+             inputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+@@ -103,8 +98,6 @@
+             sortedInputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+             outputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+             errorFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            nightlyOutFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborConstants.BatchFileSystem.NIGHTLY_OUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            nightlyOutBackupFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.NIGHTLY_OUT_BACKUP + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+             laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
+         }
+         LOG.info("Deleting all files from " + buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
+@@ -128,12 +121,13 @@
+         checkDao(dao);
+         testDataToFile( "testBuildEncumbranceBalanceFileStep_NoBalances", inputFile);
+         inputDoneFile.createNewFile();
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+         try {        
+             // pass in an additional where clause that will retrieve no records
+             ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND 0=1\n\n" );
+             boolean result = buildEncumbranceBalanceFileStep.execute("testBuildEncumbranceBalanceFileStep_NoBalances", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+             
+-            assertTrue( "Even if no balances, a file should have been created.", balanceFile.exists() );
++            assertTrue( "Even if no balances, a file should have been created: " + balanceFile.getAbsolutePath(), balanceFile.exists() );
+             assertEquals( "The balance file should be empty when no balance records", 0, balanceFile.length() );
+             
+             assertTrue( "Step failed - returned false", result );
+@@ -285,65 +279,5 @@
+         
+         assertTrue( "A report file should have been created", laborReportsDirectory.list().length > 0 );
+     }
+-
+-    public void testAppendEncumbranceTransactionsStep_NoNightlyOutFile() throws Exception {
+-        // create a pseudo output file from the process
+-        testDataToFile( "sortEncumbranceFile", outputFile);
+-        String outputFileContents = fileContentsToString(outputFile);
+-        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+-        
+-        // ensure that a backup was not made
+-        assertFalse( "nightly out backup file created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
+-
+-        // pull the contents of the new nightly out file
+-        String mergedFileContents = fileContentsToString(nightlyOutFile);
+-        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
+-    }
+-
+-    public void testAppendEncumbranceTransactionsStep_EmptyNightlyOutFile() throws Exception {
+-        // create a pseudo output file from the process
+-        testDataToFile( "sortEncumbranceFile", outputFile);
+-        String outputFileContents = fileContentsToString(outputFile);
+-
+-        // create empty file
+-        nightlyOutFile.createNewFile();
+-        assertTrue( "file create failed", nightlyOutFile.exists() );
+-        
+-        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+-        
+-        // ensure that a backup was made and that it is equal to the original input file
+-        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
+-        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
+-        assertEquals( "Nightly out backup file is not empty", "", nightlyOutBackupFileContents );
+-
+-        // pull the contents of the new nightly out file
+-        String mergedFileContents = fileContentsToString(nightlyOutFile);
+-        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
+-    }
+-
+-    public void testAppendEncumbranceTransactionsStep() throws Exception {
+-        // test with no file
+-        testDataToFile( "sortEncumbranceFile", outputFile);
+-        String outputFileContents = fileContentsToString(outputFile);
+-        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+-        
+-        // create a test nightly out file
+-        testDataToFile( "nightlyOutFile", nightlyOutFile);
+-        String originalNightlyOut = fileContentsToString(nightlyOutFile);
+-        // create a pseudo output file from the process
+-        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+-
+-        // ensure that a backup was made and that it is equal to the original input file
+-        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
+-        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
+-        
+-        assertEquals( "Nightly out and backup file do not match.", originalNightlyOut, nightlyOutBackupFileContents );
+-
+-        // pull the contents of the new nightly out file
+-        String mergedFileContents = fileContentsToString(nightlyOutFile);
+-        System.out.println("RESULT FILE:\n" + mergedFileContents);
+-        System.out.println("CORRECT DATA:\n" + originalNightlyOut + outputFileContents);
+-        assertEquals( "file merge not correct", originalNightlyOut + outputFileContents, mergedFileContents );
+-    }
+     
+ }
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java	(revision 11538)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java	(revision 11539)
+@@ -1,114 +0,0 @@
+-package edu.arizona.kfs.module.ld.batch;
+-
+-import java.io.BufferedReader;
+-import java.io.BufferedWriter;
+-import java.io.File;
+-import java.io.FileReader;
+-import java.io.FileWriter;
+-import java.io.IOException;
+-import java.io.PrintStream;
+-import java.util.Date;
+-
+-import org.kuali.kfs.gl.GeneralLedgerConstants;
+-import org.kuali.kfs.module.ld.LaborConstants;
+-import org.kuali.kfs.sys.batch.AbstractStep;
+-import org.springframework.util.StopWatch;
+-
+-import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
+-
+-/**
+- * Sorts the incoming encumbrance balance file from HCM.
+- * 
+- * @author jonathan
+- */
+-public class LaborAppendEncumbranceTransactionsStep extends AbstractStep {
+-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborAppendEncumbranceTransactionsStep.class);
+-    protected String batchFileDirectoryName;
+-    
+-    /**
+-     * Sorts the incoming encumbrance balance file from HCM.
+-     * 
+-     * @param jobName the name of the job this step is being run as part of
+-     * @param jobRunDate the time/date the job was started
+-     * @return true if the job completed successfully, false if otherwise
+-     * @see org.kuali.kfs.sys.batch.Step#execute(java.lang.String)
+-     */
+-    public boolean execute(String jobName, Date jobRunDate) {
+-        StopWatch stopWatch = null;
+-        boolean succeeded = true;
+-        if (LOG.isDebugEnabled()) {
+-            stopWatch = new StopWatch();
+-            stopWatch.start(jobName);
+-        }
+-
+-        // get the nightly out file
+-        String nightlyOutFileName = batchFileDirectoryName + File.separator + LaborConstants.BatchFileSystem.NIGHTLY_OUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+-        File nightlyOutFile = new File( nightlyOutFileName );
+-
+-        // get the nightly out backup file handle
+-        String nightlyOutBackupFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.NIGHTLY_OUT_BACKUP + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+-        File nightlyOutBackupFile = new File( nightlyOutBackupFileName );
+-
+-        // get the results of the encumbrance difference processing
+-        String encumbranceFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+-        File encumbranceFile = new File( encumbranceFileName );
+-        
+-        // backup the nightly out file
+-        if ( nightlyOutFile.exists() ) {
+-            succeeded = copyFile( nightlyOutFile, nightlyOutBackupFile );
+-        }
+-
+-        // loop over the lines in the new file - add them to the original nightly out file
+-        if ( succeeded ) {
+-            try {
+-                BufferedWriter outputWriter = new BufferedWriter(new FileWriter(nightlyOutFile,true));
+-                BufferedReader inputBufferedReader = new BufferedReader(new FileReader(encumbranceFile));
+-            
+-                String currentLine = inputBufferedReader.readLine();
+-                while (currentLine != null) {
+-                    outputWriter.write(currentLine);
+-                    outputWriter.newLine();
+-                    currentLine = inputBufferedReader.readLine();
+-                }
+-                inputBufferedReader.close();    
+-                outputWriter.close();            
+-            } catch (IOException e) {
+-                LOG.fatal("problem appending encumbrance entries to the nightly out file - aborting: " + e.getMessage(),e);
+-                succeeded = false;
+-            }
+-        }
+-        
+-        if (LOG.isDebugEnabled()) {
+-            stopWatch.stop();
+-            LOG.debug(this.getClass().getName() + " of " + jobName + " took " + (stopWatch.getTotalTimeSeconds() / 60.0) + " minutes to complete");
+-        }
+-        return succeeded;
+-    }
+-   
+-    public void setBatchFileDirectoryName(String batchFileDirectoryName) {
+-        this.batchFileDirectoryName = batchFileDirectoryName;
+-    }
+-
+-    protected boolean copyFile(File inputFile, File outputFile){
+-        try {
+-            FileReader inputFileReader = new FileReader(inputFile);
+-            outputFile.createNewFile();
+-            PrintStream outputFileStream = new PrintStream(outputFile);
+-
+-            BufferedReader inputBufferedReader = new BufferedReader(inputFileReader);
+-        
+-            String currentLine = inputBufferedReader.readLine();
+-            while (currentLine != null) {
+-                outputFileStream.printf("%s\n", currentLine);
+-                currentLine = inputBufferedReader.readLine();
+-            }
+-            inputBufferedReader.close();    
+-            outputFileStream.close();    
+-            return true;
+-        } catch (IOException e) {
+-            LOG.fatal("problem backing up labor nightly out file - aborting: " + e.getMessage(),e);
+-            return false;
+-        }             
+-    }
+-    
+-}
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 11538)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 11539)
+@@ -1,302 +1,300 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!--
+- Copyright 2005-2007 The Kuali Foundation.
+- 
+- Licensed under the Educational Community License, Version 1.0 (the "License");
+- you may not use this file except in compliance with the License.
+- You may obtain a copy of the License at
+- 
+- http://www.opensource.org/licenses/ecl1.php
+- 
+- Unless required by applicable law or agreed to in writing, software
+- distributed under the License is distributed on an "AS IS" BASIS,
+- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- See the License for the specific language governing permissions and
+- limitations under the License.
+--->
++<!-- Copyright 2005-2007 The Kuali Foundation. Licensed under the Educational 
++	Community License, Version 1.0 (the "License"); you may not use this file 
++	except in compliance with the License. You may obtain a copy of the License 
++	at http://www.opensource.org/licenses/ecl1.php Unless required by applicable 
++	law or agreed to in writing, software distributed under the License is distributed 
++	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
++	express or implied. See the License for the specific language governing permissions 
++	and limitations under the License. -->
+ <beans xmlns="http://www.springframework.org/schema/beans"
+- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+- xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+-       xsi:schemaLocation="http://www.springframework.org/schema/beans
++	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
++	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
++	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                            http://www.springframework.org/schema/tx
+                            http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                            http://www.springframework.org/schema/aop
+                            http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+ 
+-  <bean id="ldModuleConfiguration" parent="ldModuleConfiguration-parentBean">
+-  <property name="packagePrefixes">
+-            <list merge="true">
+-                <value>edu.arizona.kfs.module.ld</value>
+-            </list>
+-        </property>
+-  <property name="dataDictionaryPackages">
+-   <list merge="true">
+-                <value>edu/arizona/kfs/module/ld/document/datadictionary</value>
+-   </list>
+-  </property>
+-  <property name="databaseRepositoryFilePaths">
+-   <list merge="true">
+-    <value>edu/arizona/kfs/module/ld/ojb-ld.xml</value>
+-   </list>
+-  </property> 
+-   <property name="jobNames">
+-     <list merge="true">
+-    <value>calculateEreJob</value>
+-    <value>ereSweepJob</value>
+-	<!-- FP-INT0008-01 - added encumbrance balance adjustment job -->
+-	<value>laborEncumbranceAdjustmentJob</value>
+-   </list>
+-  </property>
+- </bean>
+- 
+- <!-- KITT-966 changed to unscheduled -->
+- <bean id="ereSweepJob" parent="unscheduledJobDescriptor">
+-  <property name="steps">
+-   <list>
+-    <!-- Just Execute only -->
+-    <ref bean="ereSweepStep" />
+-   </list>
+-  </property>
+- </bean>
++	<bean id="ldModuleConfiguration" parent="ldModuleConfiguration-parentBean">
++		<property name="packagePrefixes">
++			<list merge="true">
++				<value>edu.arizona.kfs.module.ld</value>
++			</list>
++		</property>
++		<property name="dataDictionaryPackages">
++			<list merge="true">
++				<value>edu/arizona/kfs/module/ld/document/datadictionary</value>
++			</list>
++		</property>
++		<property name="databaseRepositoryFilePaths">
++			<list merge="true">
++				<value>edu/arizona/kfs/module/ld/ojb-ld.xml</value>
++			</list>
++		</property>
++		<property name="jobNames">
++			<list merge="true">
++				<value>calculateEreJob</value>
++				<value>ereSweepJob</value>
++				<!-- FP-INT0008-01 - added encumbrance balance adjustment job -->
++				<value>laborEncumbranceAdjustmentJob</value>
++			</list>
++		</property>
++	</bean>
+ 
+- <bean id="ereSweepStep" class="edu.arizona.kfs.module.ld.batch.EreSweepStep"
+-  parent="step">
+-  <property name="ereSweepParamSrv">
+-   <ref bean="ereSweepParamService" />
+-  </property>
+-  
+-  <property name="ereSweepSrv">
+-   <ref bean="ereSweepService" />
+-  </property>
++	<!-- KITT-966 changed to unscheduled -->
++	<bean id="ereSweepJob" parent="unscheduledJobDescriptor">
++		<property name="steps">
++			<list>
++				<!-- Just Execute only -->
++				<ref bean="ereSweepStep" />
++			</list>
++		</property>
++	</bean>
+ 
+- </bean>
+- 
+-  <bean id="ereSweepService" class="edu.arizona.kfs.module.ld.service.impl.EreSweepServiceImpl">
+-  
+-    <property name="fileHandler">
+-   <ref bean="ereFileHandler" />
+-  </property>
++	<bean id="ereSweepStep" class="edu.arizona.kfs.module.ld.batch.EreSweepStep"
++		parent="step">
++		<property name="ereSweepParamSrv">
++			<ref bean="ereSweepParamService" />
++		</property>
+ 
+-  <property name="ereSweepDao">
+-   <ref bean="ereLdSweepDao" />
+-  </property>
+-  
+-  <property name="ereSweepParamSrv">
+-   <ref bean="ereSweepParamService" />
+-  </property>
+-  
+-  </bean>
+- 
+- <bean id="ereLdSweepDao" parent="platformAwareDao"
+-  class="edu.arizona.kfs.module.ld.dataaccess.impl.EreSweepDaoOjb" />
++		<property name="ereSweepSrv">
++			<ref bean="ereSweepService" />
++		</property>
+ 
+- <bean id="ereSweepParamService"
+-  class="edu.arizona.kfs.module.ld.service.impl.EreSweepParameterServiceImpl" >
+-  <property name="paramSrv">
+-   <ref bean="parameterService" />
+-  </property>
+- </bean>
++	</bean>
+ 
+- <bean id="ereFileHandler" class="edu.arizona.kfs.module.ld.service.impl.EreSweepFileHandlerHelperImpl" scope="prototype">
+-  <property name="accountExtensionDao">
+-   <ref bean="accountExtensionDao" />
+-  </property>
++	<bean id="ereSweepService"
++		class="edu.arizona.kfs.module.ld.service.impl.EreSweepServiceImpl">
+ 
+-  <property name="dateTimeService" >
+-   <ref bean="dateTimeService" />
+-  </property>
++		<property name="fileHandler">
++			<ref bean="ereFileHandler" />
++		</property>
+ 
+-  <property name="universityDateService" >
+-   <ref bean="universityDateService" />
+-  </property>
+-  
+-  <property name="batchFileDirectoryName" 
+-  value="${staging.directory}/ld/originEntry" />
+- </bean>
++		<property name="ereSweepDao">
++			<ref bean="ereLdSweepDao" />
++		</property>
+ 
+-<!-- KITT-966 changed to unscheduled -->  
+-<bean id="calculateEreJob" parent="unscheduledJobDescriptor">
+-  <property name="steps">
+-   <list>
+-    <ref bean="calculateEreStep" />
+-    <ref bean="ereReportsStep" />
+-    </list>
+-  </property>
+- </bean>
+- 
+- <bean id="ereReportsStep" class="edu.arizona.kfs.module.ld.batch.EreReportsStep">
+-     <property name="outputFilePath" value="${reports.directory}/ld"/>
+-     <property name="outputFilePrefix" value="laborEreJob_"/>
+-     <property name="outputFileSuffix" value=".txt"/>
+-     <property name="inputFilePath" value="${temp.directory}"/>
+-     <property name="inputFilePrefix" value="laborEreJob-"/>
+-     <property name="inputFileSuffix" value=".txt"/>
+-     <property name="reportAggregatorService" ref="reportAggregatorService"/>
+- </bean>
++		<property name="ereSweepParamSrv">
++			<ref bean="ereSweepParamService" />
++		</property>
+ 
+- <bean id="calculateEreStep" class="edu.arizona.kfs.module.ld.batch.CalculateEreStep"
+-  parent="step">
+-  <property name="calculateEreService">
+-   <ref bean="calculateEreService" />
+-  </property>
+- </bean>
++	</bean>
+ 
+- <bean id="calculateEreService"
+-  class="edu.arizona.kfs.module.ld.service.impl.CalculateEreServiceImpl">
+-  <property name="holdingFileDirectory" value="${staging.directory}/ld/holding" />
+-  
+-  <property name="laborMainReportWriterService">
+-     <ref bean="laborMainReportWriterService" />
+-  </property>
++	<bean id="ereLdSweepDao" parent="platformAwareDao"
++		class="edu.arizona.kfs.module.ld.dataaccess.impl.EreSweepDaoOjb" />
+ 
+-  <property name="fileHandler">
+-   <ref bean="peopleSoftFileHandler" />
+-  </property>
+-  
+-  <property name="paramService">
+-   <ref bean="parameterService" />
+-  </property>
+-  
+-  <property name="laborBenefitsAzCalcService">
+-   <ref bean="laborBenefitsAzCalculationService" />
+-  </property>
+-  
+-  <property name="laborBenefitsCalcService">
+-   <ref bean="laborBenefitsCalculationService" />
+-  </property>
+-  
+-  <property name="accountExtensionDao">
+-   <ref bean="accountExtensionDao" />
+-  </property>
++	<bean id="ereSweepParamService"
++		class="edu.arizona.kfs.module.ld.service.impl.EreSweepParameterServiceImpl">
++		<property name="paramSrv">
++			<ref bean="parameterService" />
++		</property>
++	</bean>
+ 
+-  <property name="originEntryGroupService">
+-   <ref bean="originEntryGroupService" />
+-  </property>
+- 
+-  <property name="dateTimeService">
+-   <ref bean="dateTimeService" />
+-  </property>
+-  
+-<property name="businessObjectService">
+-   <ref bean="businessObjectService" />
+-  </property>
++	<bean id="ereFileHandler"
++		class="edu.arizona.kfs.module.ld.service.impl.EreSweepFileHandlerHelperImpl"
++		scope="prototype">
++		<property name="accountExtensionDao">
++			<ref bean="accountExtensionDao" />
++		</property>
+ 
+-  <property name="laborGLEntryReportWriterService" ref="laborGLEntryReportWriterService" />
+-  <property name="laborPendingEntryLedgerReportWriterService"
+-   ref="laborPendingEntryLedgerReportWriterService" />
+- </bean>
+- 
+- <bean id="laborMainReportWriterService" class="org.kuali.kfs.sys.service.impl.ScrubberListingReportWriterTextServiceImpl" parent="reportWriterService">
+-  <property name="filePath" value="${temp.directory}"/>
+-  <property name="fileNamePrefix" value="laborEreJob-labor_ere_calc_report"/>
+-        <property name="title" value="LABOR ERE CALCULATION REPORT"/>
+-        <property name="classToBusinessObjectReportHelperBeanNames">
+-         <map>
+-          <entry key="org.kuali.kfs.module.ld.businessobject.LaborOriginEntry" value="transactionReportHelper"/>
+-         </map>
+-        </property>
+-        <property name="aggregationModeOn" value="true"/>
+-    </bean>
++		<property name="dateTimeService">
++			<ref bean="dateTimeService" />
++		</property>
+ 
+- <bean id="accountExtensionDao" parent="platformAwareDao"
+-  class="edu.arizona.kfs.module.ld.dataaccess.impl.AccountExtensionDaoOjb" />
++		<property name="universityDateService">
++			<ref bean="universityDateService" />
++		</property>
+ 
+- <bean id="peopleSoftFileHandler"
+-  class="edu.arizona.kfs.module.ld.service.impl.PeopleSoftFileHandlerHelperImpl" scope="prototype">
+-  <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry" />
+-  <property name="holdingFileDirectoryName" value="${staging.directory}/ld/holding" />
+-  
+-  <property name="laborErrorListingReportWriterService">
+-     <ref bean="laborErrorListingReportWriterService" />
+-  </property> 
+-  
+-  <property name="dateTimeService">
+-   <ref bean="dateTimeService" />
+-  </property>
+-  
+- </bean>
+- 
+- <bean id="laborErrorListingReportWriterService" parent="reportWriterService">
+-  <property name="filePath" value="${temp.directory}"/>
+-  <property name="fileNamePrefix" value="laborEreJob-labor_ere_error_listing"/>
+-        <property name="title" value="Ere Calc Error-Records with amounts are HCM records with invalid object codes-Zero amounts need to be filled in with ere amounts and object codes" />
+-        <property name="classToBusinessObjectReportHelperBeanNames">
+-         <map>
+-          <entry key="org.kuali.kfs.module.ld.businessobject.LaborOriginEntry" value="laborTransactionListingReportHelper"/>
+-         </map>
+-        </property>
+-        <property name="aggregationModeOn" value="true"/>
+-    </bean>     
++		<property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry" />
++	</bean>
+ 
+- <bean id="laborBenefitsAzCalculationService"
+-  class="edu.arizona.kfs.module.ld.service.impl.LaborBenefitsAzCalculationServiceImpl">
+-  <property name="businessObjectService">
+-   <ref bean="businessObjectService" />
+-  </property>
+-  <property name="laborPositionAzObjectBenefitService">
+-   <ref bean="laborAzPositionObjectBenefitService" />
+-  </property>
+- </bean>
++	<!-- KITT-966 changed to unscheduled -->
++	<bean id="calculateEreJob" parent="unscheduledJobDescriptor">
++		<property name="steps">
++			<list>
++				<ref bean="calculateEreStep" />
++				<ref bean="ereReportsStep" />
++			</list>
++		</property>
++	</bean>
+ 
+- <bean id="laborBenefitsCalculationService"
+-  class="org.kuali.kfs.module.ld.service.impl.LaborBenefitsCalculationServiceImpl">
+-  <property name="businessObjectService">
+-   <ref bean="businessObjectService" />
+-  </property>
+-  <property name="laborPositionObjectBenefitService">
+-   <ref bean="laborPositionObjectBenefitService" />
+-  </property>
+- </bean>
++	<bean id="ereReportsStep" class="edu.arizona.kfs.module.ld.batch.EreReportsStep">
++		<property name="outputFilePath" value="${reports.directory}/ld" />
++		<property name="outputFilePrefix" value="laborEreJob_" />
++		<property name="outputFileSuffix" value=".txt" />
++		<property name="inputFilePath" value="${temp.directory}" />
++		<property name="inputFilePrefix" value="laborEreJob-" />
++		<property name="inputFileSuffix" value=".txt" />
++		<property name="reportAggregatorService" ref="reportAggregatorService" />
++	</bean>
+ 
+-   <bean id="laborPositionObjectBenefitService"
+-  class="org.kuali.kfs.module.ld.service.impl.LaborPositionObjectBenefitServiceImpl">
+-  <property name="businessObjectService">
+-   <ref bean="businessObjectService" />
+-  </property>
+- </bean>
+- 
+- <bean id="laborAzPositionObjectBenefitService"
+-  class="edu.arizona.kfs.module.ld.service.impl.LaborPositionAzObjectBenefitServiceImpl">
+-  <property name="businessObjectService">
+-   <ref bean="businessObjectService" />
+-  </property>
+- </bean>
++	<bean id="calculateEreStep" class="edu.arizona.kfs.module.ld.batch.CalculateEreStep"
++		parent="step">
++		<property name="calculateEreService">
++			<ref bean="calculateEreService" />
++		</property>
++	</bean>
+ 
++	<bean id="calculateEreService"
++		class="edu.arizona.kfs.module.ld.service.impl.CalculateEreServiceImpl">
++		<property name="holdingFileDirectory" value="${staging.directory}/ld/holding" />
++
++		<property name="laborMainReportWriterService">
++			<ref bean="laborMainReportWriterService" />
++		</property>
++
++		<property name="fileHandler">
++			<ref bean="peopleSoftFileHandler" />
++		</property>
++
++		<property name="paramService">
++			<ref bean="parameterService" />
++		</property>
++
++		<property name="laborBenefitsAzCalcService">
++			<ref bean="laborBenefitsAzCalculationService" />
++		</property>
++
++		<property name="laborBenefitsCalcService">
++			<ref bean="laborBenefitsCalculationService" />
++		</property>
++
++		<property name="accountExtensionDao">
++			<ref bean="accountExtensionDao" />
++		</property>
++
++		<property name="originEntryGroupService">
++			<ref bean="originEntryGroupService" />
++		</property>
++
++		<property name="dateTimeService">
++			<ref bean="dateTimeService" />
++		</property>
++
++		<property name="businessObjectService">
++			<ref bean="businessObjectService" />
++		</property>
++
++		<property name="laborGLEntryReportWriterService" ref="laborGLEntryReportWriterService" />
++		<property name="laborPendingEntryLedgerReportWriterService"
++			ref="laborPendingEntryLedgerReportWriterService" />
++	</bean>
++
++	<bean id="laborMainReportWriterService"
++		class="org.kuali.kfs.sys.service.impl.ScrubberListingReportWriterTextServiceImpl"
++		parent="reportWriterService">
++		<property name="filePath" value="${temp.directory}" />
++		<property name="fileNamePrefix" value="laborEreJob-labor_ere_calc_report" />
++		<property name="title" value="LABOR ERE CALCULATION REPORT" />
++		<property name="classToBusinessObjectReportHelperBeanNames">
++			<map>
++				<entry key="org.kuali.kfs.module.ld.businessobject.LaborOriginEntry"
++					value="transactionReportHelper" />
++			</map>
++		</property>
++		<property name="aggregationModeOn" value="true" />
++	</bean>
++
++	<bean id="accountExtensionDao" parent="platformAwareDao"
++		class="edu.arizona.kfs.module.ld.dataaccess.impl.AccountExtensionDaoOjb" />
++
++	<bean id="peopleSoftFileHandler"
++		class="edu.arizona.kfs.module.ld.service.impl.PeopleSoftFileHandlerHelperImpl"
++		scope="prototype">
++		<property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry" />
++		<property name="holdingFileDirectoryName" value="${staging.directory}/ld/holding" />
++
++		<property name="laborErrorListingReportWriterService">
++			<ref bean="laborErrorListingReportWriterService" />
++		</property>
++
++		<property name="dateTimeService">
++			<ref bean="dateTimeService" />
++		</property>
++
++	</bean>
++
++	<bean id="laborErrorListingReportWriterService" parent="reportWriterService">
++		<property name="filePath" value="${temp.directory}" />
++		<property name="fileNamePrefix" value="laborEreJob-labor_ere_error_listing" />
++		<property name="title"
++			value="Ere Calc Error-Records with amounts are HCM records with invalid object codes-Zero amounts need to be filled in with ere amounts and object codes" />
++		<property name="classToBusinessObjectReportHelperBeanNames">
++			<map>
++				<entry key="org.kuali.kfs.module.ld.businessobject.LaborOriginEntry"
++					value="laborTransactionListingReportHelper" />
++			</map>
++		</property>
++		<property name="aggregationModeOn" value="true" />
++	</bean>
++
++	<bean id="laborBenefitsAzCalculationService"
++		class="edu.arizona.kfs.module.ld.service.impl.LaborBenefitsAzCalculationServiceImpl">
++		<property name="businessObjectService">
++			<ref bean="businessObjectService" />
++		</property>
++		<property name="laborPositionAzObjectBenefitService">
++			<ref bean="laborAzPositionObjectBenefitService" />
++		</property>
++	</bean>
++
++	<bean id="laborBenefitsCalculationService"
++		class="org.kuali.kfs.module.ld.service.impl.LaborBenefitsCalculationServiceImpl">
++		<property name="businessObjectService">
++			<ref bean="businessObjectService" />
++		</property>
++		<property name="laborPositionObjectBenefitService">
++			<ref bean="laborPositionObjectBenefitService" />
++		</property>
++	</bean>
++
++	<bean id="laborPositionObjectBenefitService"
++		class="org.kuali.kfs.module.ld.service.impl.LaborPositionObjectBenefitServiceImpl">
++		<property name="businessObjectService">
++			<ref bean="businessObjectService" />
++		</property>
++	</bean>
++
++	<bean id="laborAzPositionObjectBenefitService"
++		class="edu.arizona.kfs.module.ld.service.impl.LaborPositionAzObjectBenefitServiceImpl">
++		<property name="businessObjectService">
++			<ref bean="businessObjectService" />
++		</property>
++	</bean>
++
+ 	<!-- FP-INT0008-01 - encumbrance balance adjustment job -->
+-	<bean id="laborEncumbranceAdjustmentService" class="edu.arizona.kfs.module.ld.batch.service.impl.LaborEncumbranceAdjustmentServiceImpl">
++	<bean id="laborEncumbranceAdjustmentService"
++		class="edu.arizona.kfs.module.ld.batch.service.impl.LaborEncumbranceAdjustmentServiceImpl">
+ 		<property name="laborEncumbranceAdjustmentDao" ref="laborEncumbranceAdjustmentDao" />
+ 		<property name="dateTimeService" ref="dateTimeService" />
+-		<property name="reportWriterService" ref="laborEncumbranceAdjustmentReportWriterService" />
++		<property name="reportWriterService"
++			ref="laborEncumbranceAdjustmentReportWriterService" />
+ 	</bean>
+ 
+-	<bean id="laborEncumbranceAdjustmentDao" 
+-			class="edu.arizona.kfs.module.ld.batch.dataaccess.impl.LaborEncumbranceAdjustmentDaoJdbc"
+-			parent="platformAwareDaoJdbc" />
++	<bean id="laborEncumbranceAdjustmentDao"
++		class="edu.arizona.kfs.module.ld.batch.dataaccess.impl.LaborEncumbranceAdjustmentDaoJdbc"
++		parent="platformAwareDaoJdbc" />
+ 
+ 	<bean id="laborBuildEncumbranceBalanceFileStep" parent="step"
+-		  class="edu.arizona.kfs.module.ld.batch.LaborBuildEncumbranceBalanceFileStep">
++		class="edu.arizona.kfs.module.ld.batch.LaborBuildEncumbranceBalanceFileStep">
+ 		<property name="laborEncumbranceAdjustmentService" ref="laborEncumbranceAdjustmentService" />
+-        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++		<property name="batchFileDirectoryName" value="${staging.directory}/ld/holding" />
+ 	</bean>
+-	
++
+ 	<bean id="laborSortEncumbranceFileStep" parent="step"
+-			class="edu.arizona.kfs.module.ld.batch.LaborSortEncumbranceFileStep">
+-        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
+-        <property name="processedBatchFileDirectoryName" value="${staging.directory}/ld/originEntry/complete"/>
++		class="edu.arizona.kfs.module.ld.batch.LaborSortEncumbranceFileStep">
++		<property name="batchFileDirectoryName" value="${staging.directory}/ld/holding" />
++		<property name="processedBatchFileDirectoryName" value="${staging.directory}/ld/holding/complete" />
+ 	</bean>
+ 
+ 	<bean id="laborCalculateEncumbranceAdjustmentsStep" parent="step"
+-		  class="edu.arizona.kfs.module.ld.batch.LaborCalculateEncumbranceAdjustmentsStep">
++		class="edu.arizona.kfs.module.ld.batch.LaborCalculateEncumbranceAdjustmentsStep">
+ 		<property name="laborEncumbranceAdjustmentService" ref="laborEncumbranceAdjustmentService" />
+-        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++		<property name="batchFileDirectoryName" value="${staging.directory}/ld/holding" />
+ 	</bean>
+ 
+-	<bean id="laborAppendEncumbranceTransactionsStep" parent="step"
+-			class="edu.arizona.kfs.module.ld.batch.LaborAppendEncumbranceTransactionsStep">
+-        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
+-	</bean>
+-
+ 	<!-- KITT-966 changed to unscheduled -->
+ 	<bean id="laborEncumbranceAdjustmentJob" parent="unscheduledJobDescriptor">
+ 		<property name="steps">
+@@ -304,47 +302,39 @@
+ 				<ref bean="laborSortEncumbranceFileStep" />
+ 				<ref bean="laborBuildEncumbranceBalanceFileStep" />
+ 				<ref bean="laborCalculateEncumbranceAdjustmentsStep" />
+-				<ref bean="laborAppendEncumbranceTransactionsStep" />
+ 			</list>
+ 		</property>
+-		<property name="dependencies">
+-			<map>
+-				<entry key="laborNightlyOutJob" value="hardDependency"/>
+-			</map>
+-		</property>
+ 	</bean>
+ 
+ 	<bean id="laborEncumbranceAdjustmentReportWriterService" parent="reportWriterService"
+-			class="edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceReportWriterService">
+-		<property name="filePath" value="${reports.directory}/ld"/>
+-		<property name="fileNamePrefix" value="llEncumbranceAdjustmentReport"/>
+-        <property name="title" value="Labor Encumbrance Adjustment Results"/>
+-    </bean>	
++		class="edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceReportWriterService">
++		<property name="filePath" value="${reports.directory}/ld" />
++		<property name="fileNamePrefix" value="llEncumbranceAdjustmentReport" />
++		<property name="title" value="Labor Encumbrance Adjustment Results" />
++	</bean>
+ 	<!-- FP-INT0008-01 - END MOD -->
+-	
++
+ 	<!-- KITT-966 changed to unscheduled -->
+ 	<bean id="laborScrubberJob" parent="unscheduledJobDescriptor">
+ 		<property name="steps">
+ 			<list>
+-				<ref bean="createLaborBackupGroupStep"/>
+-				<ref bean="laborPreScrubberStep"/>
+-				<ref bean="laborScrubberSortStep"/>
+-				<ref bean="laborScrubberStep"/>
++				<ref bean="createLaborBackupGroupStep" />
++				<ref bean="laborPreScrubberStep" />
++				<ref bean="laborScrubberSortStep" />
++				<ref bean="laborScrubberStep" />
+ 				<ref bean="laborDemergerSortStep" />
+ 				<ref bean="laborDemergerStep" />
+-				<ref bean="aggregateLaborScrubberReportsStep"/>
++				<ref bean="aggregateLaborScrubberReportsStep" />
+ 			</list>
+ 		</property>
+ 		<property name="dependencies">
+ 			<map>
+-				<entry key="laborNightlyOutJob" value="hardDependency"/>
+-				<!-- FP-INT0008-01 - added encumbrance balance adjustment job dependency -->
+-				<entry key="laborEncumbranceAdjustmentJob" value="softDependency"/>
++				<entry key="laborNightlyOutJob" value="hardDependency" />
+ 			</map>
+ 		</property>
+-	</bean>	
++	</bean>
+ 
+- <!-- validations -->
+- <import
+-  resource="document/validation/configuration/SalaryExpenseTransferValidations.xml" />
++	<!-- validations -->
++	<import
++		resource="document/validation/configuration/SalaryExpenseTransferValidations.xml" />
+ </beans>

@@ -1,0 +1,356 @@
+Index: test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 12291)
++++ test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 12292)
+@@ -17,10 +17,10 @@
+ 
+ import java.io.BufferedReader;
+ import java.io.File;
+-import java.io.FileFilter;
+ import java.io.FileReader;
+ import java.io.PrintStream;
+ import java.math.BigDecimal;
++import java.sql.Date;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Properties;
+@@ -30,7 +30,6 @@
+ import org.apache.log4j.Logger;
+ import org.kuali.kfs.gl.GeneralLedgerConstants;
+ import org.kuali.kfs.gl.businessobject.OriginEntryGroup;
+-import org.kuali.kfs.module.ld.LaborConstants;
+ import org.kuali.kfs.module.ld.batch.service.LaborOriginEntryTestBase;
+ import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
+ import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
+@@ -53,12 +52,16 @@
+     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentJobTest.class);
+     Properties testData;
+     File inputFile;
++    File processedInputFile;
+     File inputDoneFile;
+     File sortedInputFile;
+     File balanceFile;
+     File outputFile;
+     File errorFile;
+     File laborReportsDirectory;
++    Date jobRunDate;
++    File batchDirectory;
++    File processedFileDirectory;
+     
+     LaborBuildEncumbranceBalanceFileStep buildEncumbranceBalanceFileStep;
+     LaborSortEncumbranceFileStep sortEncumbranceFileStep;
+@@ -87,18 +90,24 @@
+     public void setUp() throws Exception {
+         super.setUp();
+         if ( buildEncumbranceBalanceFileStep == null ) {
++            jobRunDate = SpringContext.getBean(DateTimeService.class).getCurrentSqlDate();
++            System.out.println( "Job Run Date: " + jobRunDate );
+             // get steps
+             buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
+             sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
+             adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
++            // get directory names
++            batchDirectory = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
++            processedFileDirectory = new File( sortEncumbranceFileStep.getProcessedBatchFileDirectoryName() );
++            laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
+             // get file names
+-            balanceFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            inputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            inputDoneFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
+-            sortedInputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            outputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            errorFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
++            balanceFile     = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE      + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            processedInputFile = new File( processedFileDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "." + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputDoneFile   = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
++            sortedInputFile = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            outputFile      = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE       + "." + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            errorFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE        + "." + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+         }
+         LOG.info("Deleting all files from " + buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
+         // clear out any existing files
+@@ -121,11 +130,11 @@
+         checkDao(dao);
+         testDataToFile( "testBuildEncumbranceBalanceFileStep_NoBalances", inputFile);
+         inputDoneFile.createNewFile();
+-        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", jobRunDate);
+         try {        
+             // pass in an additional where clause that will retrieve no records
+             ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND 0=1\n\n" );
+-            boolean result = buildEncumbranceBalanceFileStep.execute("testBuildEncumbranceBalanceFileStep_NoBalances", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            boolean result = buildEncumbranceBalanceFileStep.execute("testBuildEncumbranceBalanceFileStep_NoBalances", jobRunDate);
+             
+             assertTrue( "Even if no balances, a file should have been created: " + balanceFile.getAbsolutePath(), balanceFile.exists() );
+             assertEquals( "The balance file should be empty when no balance records", 0, balanceFile.length() );
+@@ -137,40 +146,44 @@
+         }
+     }
+     
+-//    public void testBuildEncumbranceBalanceFileStep() {
+-//        LaborBuildEncumbranceBalanceFileStep step = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
+-//        assertNotNull( "Unable to retrieve LaborBuildEncumbranceBalanceFileStep", step);
+-//        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
+-//        // pass in an additional where clause
+-//        checkDao(dao);
+-//        File outputFile = new File( step.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-//        try {        
+-//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND fin_coa_cd = 'ZZ'\n\n" );
+-//            
+-//            if ( outputFile.exists() ) {
+-//                outputFile.delete();
+-//            }
+-//            
+-//        } finally {
+-//            
+-//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
+-//            if ( outputFile.exists() ) {
+-//                outputFile.delete();
+-//            }
+-//        }
+-//    }
++    public void testBuildEncumbranceBalanceFileStep() {
++        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++        // pass in an additional where clause
++        checkDao(dao);
++        try {        
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND fin_coa_cd = 'UA'\n\n" );
++            buildEncumbranceBalanceFileStep.execute("laborBuildEncumbranceBalanceFileStep", jobRunDate);
++            if ( balanceFile.exists() ) {
++                balanceFile.delete();
++            }
++            
++        } finally {
++            
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
++            if ( balanceFile.exists() ) {
++                balanceFile.delete();
++            }
++        }
++    }
+     
+     public void testSortEncumbranceFileStep() throws Exception {
++        Thread.sleep(5000); // ensure timestamp differs (jobRunDate set in setUp method)
+         testDataToFile( "sortEncumbranceFile", inputFile);
+         assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
++        long inputFileTime = inputFile.lastModified();
+         inputDoneFile.createNewFile();
++        System.out.println( "" );
+         String inputData = fileContentsToString( inputFile );
+-        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", jobRunDate);        
+         assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
+         String outputData = fileContentsToString( sortedInputFile );
+         System.out.println( "UNSORTED INPUT FILE:\n" + inputData );
+         System.out.println( "SORTED OUTPUT FILE:\n" + outputData );
+         assertFalse( "Files should not be the same", inputData.equals(outputData));
++        assertTrue( "Input File not moved to processed directory and renamed: " + processedInputFile.getAbsolutePath(), processedInputFile.exists() );
++        // need to remove the millis on the output below
++        assertFalse( "Timestamp on processed file and original file must not match.  Were: " + new Date( inputFile.lastModified() ), (inputFile.lastModified() - inputFile.lastModified()%1000) == (processedInputFile.lastModified() - processedInputFile.lastModified()%1000) );
++        assertEquals( "Timestamp on file and jobRunDate must be equal", jobRunDate.getTime() - jobRunDate.getTime()%1000, processedInputFile.lastModified() - processedInputFile.lastModified()%1000 );
+     }
+     
+     protected List<LaborOriginEntry> testDataToOriginEntries( String dataSection ) {
+@@ -250,10 +263,10 @@
+         testDataToFile( "sortEncumbranceFile", inputFile);
+         assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
+         inputDoneFile.createNewFile();
+-        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", jobRunDate);        
+         assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
+         
+-        adjustmentsStep.execute("testCalculateEncumbranceAdjustmentsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        adjustmentsStep.execute("testCalculateEncumbranceAdjustmentsStep", jobRunDate);
+         // check parsing/line error
+         
+         // TODO: add line which will not parse (bad date format?)
+@@ -271,10 +284,10 @@
+         for ( LaborOriginEntry e : correctResults ) {
+             // fix the date to match that inserted by the process
+             //e.setTransactionDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
+-            e.setTransactionPostingDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            e.setTransactionPostingDate(jobRunDate);
+             sb.append( e.getLine() ).append( '\n' );
+         }
+-        System.out.println(sb);
++        System.out.println(sb.toString());
+         assertEquals( "Output file and expected output is not equal.", sb.toString(), outputData );
+         
+         assertTrue( "A report file should have been created", laborReportsDirectory.list().length > 0 );
+Index: work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12291)
++++ work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12292)
+@@ -29,6 +29,11 @@
+ import edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceReportWriterService;
+ import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
+ 
++/**
++ * KITT-933 / FP-INT0008-01 - Main service which calculates the needed adjustments.  Used by the related batch steps. 
++ * 
++ * @author Jonathan Keller
++ */
+ public class LaborEncumbranceAdjustmentServiceImpl implements LaborEncumbranceAdjustmentService {
+     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentServiceImpl.class);
+ 
+@@ -438,7 +443,7 @@
+         this.laborEncumbranceAdjustmentDao = laborEncumbranceAdjustmentDao;
+     }
+ 
+-    public DateTimeService getDateTimeService() {
++    protected DateTimeService getDateTimeService() {
+         return dateTimeService;
+     }
+ 
+@@ -446,7 +451,7 @@
+         this.dateTimeService = dateTimeService;
+     }
+ 
+-    public LaborEncumbranceReportWriterService getReportWriterService() {
++    protected LaborEncumbranceReportWriterService getReportWriterService() {
+         return reportWriterService;
+     }
+ 
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java	(revision 12291)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java	(revision 12292)
+@@ -13,6 +13,11 @@
+ 
+ import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
+ 
++/**
++ * KITT-933 / FP-INT0008-01 - Builds a balance file from the current encumbrance balances in the labor ledger.  
++ * 
++ * @author Jonathan Keller
++ */
+ public class LaborBuildEncumbranceBalanceFileStep extends AbstractStep {
+     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborBuildEncumbranceBalanceFileStep.class);
+ 
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 12291)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 12292)
+@@ -7,6 +7,7 @@
+ import org.kuali.kfs.gl.GeneralLedgerConstants;
+ import org.kuali.kfs.gl.batch.BatchSortUtil;
+ import org.kuali.kfs.sys.batch.AbstractStep;
++import org.kuali.rice.kns.service.DateTimeService;
+ import org.springframework.util.StopWatch;
+ 
+ import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
+@@ -20,9 +21,8 @@
+     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborSortEncumbranceFileStep.class);
+     protected String batchFileDirectoryName;
+     protected String processedBatchFileDirectoryName;
++    protected DateTimeService dateTimeService;
+ 
+-    protected SimpleDateFormat completeFileTimestampFormat = new SimpleDateFormat( "yyyyMMdd_HHmmss" );
+-    
+     /**
+      * Sorts the incoming encumbrance balance file from HCM.
+      * 
+@@ -54,7 +54,8 @@
+                 LOG.debug( "Sorting: \n   " + inputFileName + "\nto\n   " + outputFileName);
+             }
+             BatchSortUtil.sortTextFileWithFields(inputFileName, outputFileName, new LaborEncumbranceBalanceOriginEntrySortComparator());
+-            inputFile.renameTo(new File( processedDirectory, LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + completeFileTimestampFormat.format(new Date()) + GeneralLedgerConstants.BatchFileSystem.EXTENSION ) );
++            inputFile.setLastModified(jobRunDate.getTime());
++            inputFile.renameTo(new File( processedDirectory, LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION ) );
+             doneFile.delete();
+         } else {
+             if ( inputFile.exists() && !doneFile.exists() ) {
+@@ -86,5 +87,12 @@
+     public void setProcessedBatchFileDirectoryName(String processedBatchFileDirectoryName) {
+         this.processedBatchFileDirectoryName = processedBatchFileDirectoryName;
+     }
++    protected DateTimeService getDateTimeService() {
++        return dateTimeService;
++    }
+ 
++    public void setDateTimeService(DateTimeService dateTimeService) {
++        this.dateTimeService = dateTimeService;
++    }
++
+ }
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 12291)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 12292)
+@@ -5,15 +5,22 @@
+ 
+ import org.kuali.kfs.gl.GeneralLedgerConstants;
+ import org.kuali.kfs.sys.batch.AbstractStep;
++import org.kuali.rice.kns.service.DateTimeService;
+ import org.springframework.util.StopWatch;
+ 
+ import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
+ 
++/**
++ * KITT-933 / FP-INT0008-01 - Batch step to create the encumbrance adjustment file. 
++ * 
++ * @author Jonathan Keller
++ */
+ public class LaborCalculateEncumbranceAdjustmentsStep extends AbstractStep {
+     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborCalculateEncumbranceAdjustmentsStep.class);
+ 
+     protected String batchFileDirectoryName;
+     protected LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService;
++    protected DateTimeService dateTimeService;
+ 
+     public boolean execute(String jobName, Date jobRunDate) {
+         StopWatch stopWatch = null;
+@@ -27,14 +34,14 @@
+         String balanceFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+         File balanceFile = new File( balanceFileName );
+         if ( inputFile.exists() && balanceFile.exists() ) {
+-            String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+             File outputFile = new File( outputFileName );
+-            String errorFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            String errorFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + "." + dateTimeService.toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
+             File errorFile = new File( errorFileName );
+             
+             getLaborEncumbranceAdjustmentService().buildEncumbranceDifferenceFile(inputFile,balanceFile,outputFile,errorFile);
+             
+-            // delete the input files
++            // delete the input files (neither were the original input files, but are temp files, so this is safe)
+             inputFile.delete();
+             balanceFile.delete();
+         }                    
+@@ -56,4 +63,12 @@
+     public void setLaborEncumbranceAdjustmentService(LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService) {
+         this.laborEncumbranceAdjustmentService = laborEncumbranceAdjustmentService;
+     }
++    protected DateTimeService getDateTimeService() {
++        return dateTimeService;
++    }
++
++    public void setDateTimeService(DateTimeService dateTimeService) {
++        this.dateTimeService = dateTimeService;
++    }
++
+ }
+Index: work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 12291)
++++ work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 12292)
+@@ -287,13 +287,16 @@
+ 		class="edu.arizona.kfs.module.ld.batch.LaborSortEncumbranceFileStep">
+ 		<property name="batchFileDirectoryName" value="${staging.directory}/ld/holding" />
+ 		<property name="processedBatchFileDirectoryName" value="${staging.directory}/ld/holding/complete" />
++		<property name="dateTimeService" ref="dateTimeService" />
+ 	</bean>
+ 
+ 	<bean id="laborCalculateEncumbranceAdjustmentsStep" parent="step"
+ 		class="edu.arizona.kfs.module.ld.batch.LaborCalculateEncumbranceAdjustmentsStep">
+ 		<property name="laborEncumbranceAdjustmentService" ref="laborEncumbranceAdjustmentService" />
+ 		<property name="batchFileDirectoryName" value="${staging.directory}/ld/holding" />
++		<property name="dateTimeService" ref="dateTimeService" />
+ 	</bean>
++	<!-- END MOD : FP-INT0008-01 -->
+ 
+ 	<!-- KITT-966 changed to unscheduled -->
+ 	<bean id="laborEncumbranceAdjustmentJob" parent="unscheduledJobDescriptor">

@@ -1,0 +1,136 @@
+Index: test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+===================================================================
+--- test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 14614)
++++ test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 14615)
+@@ -6,11 +6,11 @@
+ testBuildEncumbranceBalanceFileStep_NoBalances.testData.1=1111111111,1,1111,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,Unused Description,
+ 
+ sortEncumbranceFile.numData=5
+-sortEncumbranceFile.testData.1=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,Employee 2222222222,
+-sortEncumbranceFile.testData.2=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,100,D,2010-02-28,,----------,,,,,,,Employee 1111111111,
+-sortEncumbranceFile.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,Employee 4444444444,
+-sortEncumbranceFile.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,Employee 5555555555,
+-sortEncumbranceFile.testData.5=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,300,D,2010-02-28,,----------,,,,,,,Employee 3333333333,
++sortEncumbranceFile.testData.1=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,2,200,D,2010-02-28,,----------,,,,,,,Employee 2222222222,
++sortEncumbranceFile.testData.2=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,1,100,D,2010-02-28,,----------,,,,,,,Employee 1111111111,
++sortEncumbranceFile.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,4,400,D,2010-02-28,,----------,,,,,,,Employee 4444444444,
++sortEncumbranceFile.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,5,500,D,2010-02-28,,----------,,,,,,,Employee 5555555555,
++sortEncumbranceFile.testData.5=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,3,300,D,2010-02-28,,----------,,,,,,,Employee 3333333333,
+ # The bad line logic doesn't really work, since it goes through a process in making the 
+ # file which corrects the bad data :(
+ # this is a bad line - should not parse
+@@ -33,17 +33,17 @@
+ 
+ adjustmentTestResults.numData=6
+ # net of the 11111111111 lines
+-adjustmentTestResults.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,245,C,2010-02-28,,----------,,,,,,,Employee 1111111111,
++adjustmentTestResults.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,1,245,C,2010-02-28,,----------,,,,,,,Employee 1111111111,
+ # net of the 33333333333 lines
+-adjustmentTestResults.testData.2=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,50,D,2010-02-28,,----------,,,,,,,Employee 3333333333,
++adjustmentTestResults.testData.2=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,3,50,D,2010-02-28,,----------,,,,,,,Employee 3333333333,
+ # full creation of the 444444444 encumbrance
+-adjustmentTestResults.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,Employee 4444444444,
++adjustmentTestResults.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,4,400,D,2010-02-28,,----------,,,,,,,Employee 4444444444,
+ # Creation of the 5555555555 line with the 5678901 account
+-adjustmentTestResults.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,Employee 5555555555,
++adjustmentTestResults.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100001,5,500,D,2010-02-28,,----------,,,,,,,Employee 5555555555,
+ # Clearing of the 5555555555 line from the balance file
+-adjustmentTestResults.testData.5=5555555555,,5555,2010,ZZ,9090909,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,450,C,2010-02-28,,----------,,,,,,,Employee 5555555555,
++adjustmentTestResults.testData.5=5555555555,,5555,2010,ZZ,9090909,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100000,,450,C,2010-02-28,,----------,,,,,,,Employee 5555555555,
+ # clearing of the 6666666666 balance line (no match in data file)
+-adjustmentTestResults.testData.6=6666666666,,6666,2010,ZZ,8080808,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,600,C,2010-02-28,,----------,,,,,,,Employee 6666666666,
++adjustmentTestResults.testData.6=6666666666,,6666,2010,ZZ,8080808,-----,XYZA,---,IE,EX,08,LLPE,UE,2010111100000,,600,C,2010-02-28,,----------,,,,,,,Employee 6666666666,
+ 
+ # nightly out file for use in testing the append process
+ nightlyOutFile.numData=5
+Index: test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 14614)
++++ test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 14615)
+@@ -94,38 +94,42 @@
+     @Override
+     public void setUp() throws Exception {
+         super.setUp();
+-        if ( buildEncumbranceBalanceFileStep == null ) {
+-            jobRunDate = SpringContext.getBean(DateTimeService.class).getCurrentSqlDate();
+-            System.out.println( "Job Run Date: " + jobRunDate );
+-            // get steps
+-            buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
+-            sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
+-            adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
+-            // get directory names
+-            batchDirectory = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
+-            processedFileDirectory = new File( sortEncumbranceFileStep.getProcessedBatchFileDirectoryName() );
+-            laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
+-            // get file names
+-            balanceFile     = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE      + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            inputFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            processedInputFile = new File( processedFileDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            inputDoneFile   = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
+-            sortedInputFile = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            outputFile      = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE       + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-            errorFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE        + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+-        }
++        jobRunDate = SpringContext.getBean(DateTimeService.class).getCurrentSqlDate();
++        System.out.println( "Job Run Date: " + jobRunDate );
++        // get steps
++        buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
++        sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
++        adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
++        // get directory names
++        batchDirectory = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
++        processedFileDirectory = new File( sortEncumbranceFileStep.getProcessedBatchFileDirectoryName() );
++        laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
++        // get file names
++        balanceFile     = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE      + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        inputFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        processedInputFile = new File( processedFileDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        inputDoneFile   = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE        + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
++        sortedInputFile = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        outputFile      = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE       + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        errorFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE        + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++
+         LOG.info("Deleting all files from " + batchDirectory );
+         // clear out any existing files
+-        for ( File dirEntry : batchDirectory.listFiles() ) {
+-            if ( dirEntry.isFile() ) {
+-                dirEntry.delete();
++        if ( batchDirectory.listFiles() != null ) {
++            for ( File dirEntry : batchDirectory.listFiles() ) {
++                if ( dirEntry.isFile() ) {
++                    dirEntry.delete();
++                }
+             }
+         }
++        
+         LOG.info("Deleting all files from " + processedFileDirectory );
+         // clear out any existing files
+-        for ( File dirEntry : processedFileDirectory.listFiles() ) {
+-            if ( dirEntry.isFile() ) {
+-                dirEntry.delete();
++        if ( processedFileDirectory.listFiles() != null ) {
++            for ( File dirEntry : processedFileDirectory.listFiles() ) {
++                if ( dirEntry.isFile() ) {
++                    dirEntry.delete();
++                }
+             }
+         }
+         ((LaborEncumbranceAdjustmentServiceImpl)SpringContext.getBean(LaborEncumbranceAdjustmentService.class)).setPersonService(new TestPersonService());
+Index: work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14614)
++++ work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14615)
+@@ -223,6 +223,13 @@
+                         }
+                         reversingOriginEntry.setTransactionLedgerEntryDescription(newDescription);
+                         
++                        // Update the end of the document number to "00000"
++                        // save the first 8 characters (YYYYMMDD)
++                        String newDocNum = StringUtils.left(reversingOriginEntry.getDocumentNumber(), 8);
++                        // append the new suffix
++                        newDocNum += "00000";
++                        reversingOriginEntry.setDocumentNumber(newDocNum);
++                        
+                         outputStream.println( reversingOriginEntry.getLine() );
+                         jobData.outputCount++;        
+                         jobData.removedBalanceCount++;

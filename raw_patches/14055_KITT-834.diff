@@ -1,0 +1,170 @@
+Index: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 14054)
++++ financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 14055)
+@@ -39,6 +39,11 @@
+ import org.kuali.kfs.sys.KFSPropertyConstants;
+ import org.kuali.kfs.sys.TestDataPreparator;
+ import org.kuali.kfs.sys.context.SpringContext;
++import org.kuali.rice.kim.bo.Person;
++import org.kuali.rice.kim.bo.impl.PersonImpl;
++import org.kuali.rice.kim.service.KIMServiceLocator;
++import org.kuali.rice.kim.service.PersonService;
++import org.kuali.rice.kns.bo.BusinessObject;
+ import org.kuali.rice.kns.service.DateTimeService;
+ import org.kuali.rice.kns.service.KNSServiceLocator;
+ 
+@@ -109,16 +114,28 @@
+             outputFile      = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE       + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+             errorFile       = new File( batchDirectory + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE        + "-" + SpringContext.getBean(DateTimeService.class).toDateTimeStringForFilename(jobRunDate) + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
+         }
+-        LOG.info("Deleting all files from " + buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
++        LOG.info("Deleting all files from " + batchDirectory );
+         // clear out any existing files
+-        for ( File dirEntry : new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() ).listFiles() ) {
++        for ( File dirEntry : batchDirectory.listFiles() ) {
+             if ( dirEntry.isFile() ) {
+                 dirEntry.delete();
+             }
+         }
++        LOG.info("Deleting all files from " + processedFileDirectory );
++        // clear out any existing files
++        for ( File dirEntry : processedFileDirectory.listFiles() ) {
++            if ( dirEntry.isFile() ) {
++                dirEntry.delete();
++            }
++        }
++        ((LaborEncumbranceAdjustmentServiceImpl)SpringContext.getBean(LaborEncumbranceAdjustmentService.class)).setPersonService(new TestPersonService());
+     }
++    @Override
++    protected void tearDown() throws Exception {
++        super.tearDown();
++        ((LaborEncumbranceAdjustmentServiceImpl)SpringContext.getBean(LaborEncumbranceAdjustmentService.class)).setPersonService(KIMServiceLocator.getPersonService());
++    }
+     
+-    
+     protected void checkDao( LaborEncumbranceAdjustmentDao dao ) {
+         assertNotNull( "Unable to retrieve DAO", dao );
+         assertTrue( "DAO must be instance of LaborEncumbranceAdjustmentDaoJdbc", dao instanceof LaborEncumbranceAdjustmentDaoJdbc );
+@@ -292,5 +309,55 @@
+         
+         assertTrue( "A report file should have been created", laborReportsDirectory.list().length > 0 );
+     }
+-    
++
++    @SuppressWarnings("rawtypes")
++    static class TestPersonService implements PersonService {
++        protected PersonService personService = KIMServiceLocator.getPersonService();
++
++        public List findPeople(Map arg0, boolean arg1) {
++            return personService.findPeople(arg0, arg1);
++        }
++
++        public List findPeople(Map arg0) {
++            return personService.findPeople(arg0);
++        }
++
++        public void flushPersonCaches() {
++            personService.flushPersonCaches();
++        }
++
++        public Person getPerson(String arg0) {
++            return personService.getPerson(arg0);
++        }
++
++        public Person getPersonByEmployeeId(String employeeId) {
++            PersonImpl person = new PersonImpl();
++            person.setName("Employee " + employeeId);
++            return person;
++        }
++
++        public List getPersonByExternalIdentifier(String arg0, String arg1) {
++            return personService.getPersonByExternalIdentifier(arg0, arg1);
++        }
++
++        public Person getPersonByPrincipalName(String arg0) {
++            return personService.getPersonByPrincipalName(arg0);
++        }
++
++        public Class getPersonImplementationClass() {
++            return personService.getPersonImplementationClass();
++        }
++
++        public boolean hasPersonProperty(Class arg0, Map arg1) {
++            return personService.hasPersonProperty(arg0, arg1);
++        }
++
++        public Map resolvePrincipalNamesToPrincipalIds(BusinessObject arg0, Map arg1) {
++            return personService.resolvePrincipalNamesToPrincipalIds(arg0, arg1);
++        }
++
++        public Person updatePersonIfNecessary(String arg0, Person arg1) {
++            return personService.updatePersonIfNecessary(arg0, arg1);
++        }
++    }
+ }
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14054)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14055)
+@@ -18,9 +18,9 @@
+ import org.kuali.kfs.sys.KFSPropertyConstants;
+ import org.kuali.kfs.sys.Message;
+ import org.kuali.kfs.sys.batch.service.WrappingBatchService;
+-import org.kuali.kfs.sys.context.SpringContext;
+-import org.kuali.kfs.sys.service.OptionsService;
+-import org.kuali.kfs.sys.service.ReportWriterService;
++import org.kuali.rice.kim.bo.Person;
++import org.kuali.rice.kim.service.KIMServiceLocator;
++import org.kuali.rice.kim.service.PersonService;
+ import org.kuali.rice.kns.service.DateTimeService;
+ import org.kuali.rice.kns.util.KualiDecimal;
+ 
+@@ -40,6 +40,7 @@
+     protected LaborEncumbranceAdjustmentDao laborEncumbranceAdjustmentDao;
+     protected DateTimeService dateTimeService;
+     protected LaborEncumbranceReportWriterService reportWriterService;
++    protected PersonService<Person> personService;
+ 
+     /**
+      * @see edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService#buildBalanceFile(java.lang.Integer, java.io.File)
+@@ -205,6 +206,23 @@
+                         // add a line to reverse the entire balance
+                         // create a new origin entry instance, based on the balance line
+                         LaborOriginEntry reversingOriginEntry = createOriginEntryToReverseBalanceEntry( balanceLine, lastOriginEntry, currentDate, lMap );
++                        
++                        // however the description on the previous entry may be misleading (as in, have the employee's name)
++                        // so, we need to replace it.  Attempt to do a lookup from the person table using the employee ID.
++                        // If that fails, put in a stock description
++                        String newDescription = "Unknown Employee ID: " + reversingOriginEntry.getEmplid();
++                        try {
++                            Person employeePerson = getPersonService().getPersonByEmployeeId(reversingOriginEntry.getEmplid());
++                            if ( employeePerson == null ) {
++                                LOG.warn( "No Person found for employee ID: " + reversingOriginEntry.getEmplid() );
++                            } else {
++                                newDescription = employeePerson.getNameUnmasked();
++                            }
++                        } catch ( Exception ex ) {
++                            LOG.warn( "Error Obtaining Person for employee ID: " + reversingOriginEntry.getEmplid(), ex );
++                        }
++                        reversingOriginEntry.setTransactionLedgerEntryDescription(newDescription);
++                        
+                         outputStream.println( reversingOriginEntry.getLine() );
+                         jobData.outputCount++;        
+                         jobData.removedBalanceCount++;
+@@ -461,4 +479,15 @@
+     public void setReportWriterService(LaborEncumbranceReportWriterService reportWriterService) {
+         this.reportWriterService = reportWriterService;
+     }
++
++    protected PersonService<Person> getPersonService() {
++        if ( personService == null ) {
++            personService = KIMServiceLocator.getPersonService();
++        }
++        return personService;
++    }
++
++    public void setPersonService(PersonService<Person> personService) {
++        this.personService = personService;
++    }
+ }

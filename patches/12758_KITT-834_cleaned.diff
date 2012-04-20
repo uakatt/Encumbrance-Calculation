@@ -1,0 +1,22 @@
+Index: work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 12757)
++++ work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 12758)
+@@ -47,7 +47,7 @@
+ //        System.out.println( "Entry Line: " + originEntryLine1);
+             
+         try {
+-            sb.append(originEntryLine1.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++            sb.append(originEntryLine1.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN).trim());
+             sb.append(originEntryLine1.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
+             sb.append(originEntryLine1.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+             sb.append(originEntryLine1.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
+@@ -62,7 +62,7 @@
+         }
+         try {
+             sb.setLength(0); // clear out the string buffer for the next use
+-            sb.append(originEntryLine2.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++            sb.append(originEntryLine2.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN).trim());
+             sb.append(originEntryLine2.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
+             sb.append(originEntryLine2.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+             sb.append(originEntryLine2.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));

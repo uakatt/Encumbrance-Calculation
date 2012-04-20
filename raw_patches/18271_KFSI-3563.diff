@@ -1,0 +1,36 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 18270)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 18271)
+@@ -436,6 +436,8 @@
+         protected int BALANCE_AMOUNT_POS = TOTAL_KEY_LEN;
+         protected int BALANCE_AMOUNT_LEN = lMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT) + 1; // account for the
+                                                                                                                // plus/minus
++        protected int FINANCIAL_OBJECT_TYPE_CODE_POS =  EMPLID_LEN + POSITION_NUMBER_LEN + CHART_OF_ACCOUNTS_CODE_LEN + ACCOUNT_NUMBER_LEN + SUB_ACCOUNT_NUMBER_LEN;
++        protected int FINANCIAL_OBJECT_CODE_POS = FINANCIAL_OBJECT_TYPE_CODE_POS + FINANCIAL_OBJECT_TYPE_CODE_LEN;
+ 
+         // set up the needed string buffer for use by this sort
+         protected StringBuffer sb = new StringBuffer(TOTAL_KEY_LEN);
+@@ -458,8 +460,20 @@
+             if ( LOG.isDebugEnabled() ) {
+                 LOG.debug("Comparing Strings: \nENC: " + originEntryKeyString + "\nBAL: " + balanceRecordKeyString);
+             }
+-            // compare strings
+-            return originEntryKeyString.compareTo(balanceRecordKeyString);
++            // KFSI-3563: don't use the obj type code to compare for a match, so we need to split the keys into chunks and compare each
++            String originEntrySubKey = originEntryKeyString.substring(0, FINANCIAL_OBJECT_TYPE_CODE_POS);
++            String balanceRecordSubKey = balanceRecordKeyString.substring(0, FINANCIAL_OBJECT_TYPE_CODE_POS);
++            
++            int compareResult = originEntrySubKey.compareTo(balanceRecordSubKey);
++            if (compareResult != 0) {
++                // if unequal, we know the strings aren't equal, but if equal, we need to test the rest of the key
++                return compareResult;
++            }
++            
++            originEntrySubKey = originEntryKeyString.substring(FINANCIAL_OBJECT_CODE_POS);
++            balanceRecordSubKey = balanceRecordKeyString.substring(FINANCIAL_OBJECT_CODE_POS);
++            
++            return originEntrySubKey.compareTo(balanceRecordSubKey);
+         }
+     }
+ 

@@ -1,0 +1,19 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14665)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14666)
+@@ -216,7 +216,7 @@
+                             if ( employeePerson == null ) {
+                                 LOG.warn( "No Person found for employee ID: " + reversingOriginEntry.getEmplid() );
+                             } else {
+-                                newDescription = employeePerson.getNameUnmasked();
++                                newDescription = (employeePerson.getLastNameUnmasked() + ", " + employeePerson.getFirstNameUnmasked() + " " + employeePerson.getMiddleNameUnmasked()).trim();
+                             }
+                         } catch ( Exception ex ) {
+                             LOG.warn( "Error Obtaining Person for employee ID: " + reversingOriginEntry.getEmplid(), ex );
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+___________________________________________________________________
+Added: svn:mergeinfo
+   Merged /financial-system/kfs/branches/mod-jhkeller/KITT-1750/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java:r14487
+

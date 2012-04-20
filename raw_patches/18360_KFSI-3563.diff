@@ -1,0 +1,41 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 18359)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 18360)
+@@ -52,9 +52,9 @@
+             sb.append(originEntryLine1.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+             sb.append(originEntryLine1.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
+             sb.append(originEntryLine1.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
+-            sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+             sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
+             sb.append(originEntryLine1.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++            sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+             originEntryLine1 = sb.toString();
+         } catch ( Exception ex ) {
+             LOG.error("Exception while attempting to sort Encumbrance origin entry record: \n" + originEntryLine1, ex);
+@@ -67,9 +67,9 @@
+             sb.append(originEntryLine2.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+             sb.append(originEntryLine2.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
+             sb.append(originEntryLine2.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
+-            sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+             sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
+             sb.append(originEntryLine2.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++            sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+             originEntryLine2 = sb.toString();
+                 
+         } catch ( Exception ex ) {
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 18359)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 18360)
+@@ -38,8 +38,8 @@
+     protected String ENCUMBRANCE_BALANCE_SQL2 = 
+     		"    GROUP BY l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.fin_obj_typ_cd, l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
+     		"    HAVING SUM(l.ACLN_ANNL_BAL_AMT) != 0\n" +
+-    		"    ORDER BY EMPLID, position_nbr, fin_coa_cd, account_nbr, sub_acct_nbr, fin_obj_typ_cd," +
+-            "             FIN_OBJECT_CD, FIN_SUB_OBJ_CD"; 
++    		"    ORDER BY EMPLID, position_nbr, fin_coa_cd, account_nbr, sub_acct_nbr," +
++            "             FIN_OBJECT_CD, FIN_SUB_OBJ_CD, fin_obj_typ_cd"; 
+     
+     public int buildFileForEncumbranceBalances( Integer fiscalYear, File fileName ) {
+         // get the connection and use resultsets directly

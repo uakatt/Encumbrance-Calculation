@@ -1,0 +1,413 @@
+Index: financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+===================================================================
+--- financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 0)
++++ financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 9288)
+@@ -0,0 +1,54 @@
++deliminator = ,
++fieldNames  = emplid,employeeRecord,positionNumber,universityFiscalYear,chartOfAccountsCode,accountNumber,subAccountNumber,financialObjectCode,financialSubObjectCode,financialBalanceTypeCode,financialObjectTypeCode,universityFiscalPeriodCode,financialDocumentTypeCode,financialSystemOriginationCode,documentNumber,transactionLedgerEntrySequenceNumber,transactionLedgerEntryAmount,transactionDebitCreditCode,transactionDate,organizationDocumentNumber,projectCode,organizationReferenceId,referenceFinancialDocumentTypeCode,referenceFinancialSystemOriginationCode,referenceFinancialDocumentNumber,financialDocumentReversalDate,transactionEncumbranceUpdateCode,
++
++# just need 1 record to get the fiscal year
++testBuildEncumbranceBalanceFileStep_NoBalances.numData=1
++testBuildEncumbranceBalanceFileStep_NoBalances.testData.1=1111111111,1,1111,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
++
++sortEncumbranceFile.numData=5
++sortEncumbranceFile.testData.1=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.2=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,100,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.5=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,300,D,2010-02-28,,----------,,,,,,,
++# The bad line logic doesn't really work, since it goes through a process in making the 
++# file which corrects the bad data :(
++# this is a bad line - should not parse
++#sortEncumbranceFile.testData.6=3333333333,3,3333,20Z10,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,7,ABC,D,2010-02-28,,----------,,,,,,,
++# this is another bad line - the date is invalid
++#sortEncumbranceFile.testData.7=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,6,666,D,0000A00-00,,----------,,,,,,,
++
++balances.numData=5
++# matches data line 2, but amount is greater, should result in a decrease to the amount on the input file
++balances.testData.1=1111111111,1111,ZZ,1234567,-----,EX,XYZA,---,345
++# matches data line 1 exactly, should result in a no-op 
++balances.testData.2=2222222222,2222,ZZ,2345678,-----,EX,XYZA,---,200
++# matches line 3 - increases the line
++balances.testData.3=3333333333,3333,ZZ,3456789,-----,EX,XYZA,---,250
++# line 4 has no match - full entry will be created
++# line 5 has a employee match but different FAU
++balances.testData.4=5555555555,5555,ZZ,9090909,-----,EX,XYZA,---,450
++# this line has no match in the encumbrance file, it should be cleared
++balances.testData.5=6666666666,6666,ZZ,8080808,-----,EX,XYZA,---,600
++
++adjustmentTestResults.numData=6
++# net of the 11111111111 lines
++adjustmentTestResults.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,245,C,2010-02-28,,----------,,,,,,,
++# net of the 33333333333 lines
++adjustmentTestResults.testData.2=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,50,D,2010-02-28,,----------,,,,,,,
++# full creation of the 444444444 encumbrance
++adjustmentTestResults.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++# Creation of the 5555555555 line with the 5678901 account
++adjustmentTestResults.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++# Clearing of the 5555555555 line from the balance file
++adjustmentTestResults.testData.5=5555555555,,5555,2010,ZZ,9090909,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,450,C,2010-02-28,,----------,,,,,,,
++# clearing of the 6666666666 balance line (no match in data file)
++adjustmentTestResults.testData.6=6666666666,,6666,2010,ZZ,8080808,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,600,C,2010-02-28,,----------,,,,,,,
++
++# nightly out file for use in testing the append process
++nightlyOutFile.numData=5
++nightlyOutFile.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,100,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.2=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.3=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,300,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.4=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.5=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
+Index: financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 0)
++++ financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 9288)
+@@ -0,0 +1,349 @@
++/*
++ * Copyright 2010 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.FileFilter;
++import java.io.FileReader;
++import java.io.PrintStream;
++import java.math.BigDecimal;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++
++import org.apache.commons.lang.StringUtils;
++import org.apache.log4j.Level;
++import org.apache.log4j.Logger;
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.gl.businessobject.OriginEntryGroup;
++import org.kuali.kfs.module.ld.LaborConstants;
++import org.kuali.kfs.module.ld.batch.service.LaborOriginEntryTestBase;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
++import org.kuali.kfs.module.ld.util.LaborTestDataPreparator;
++import org.kuali.kfs.sys.ConfigureContext;
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.kfs.sys.TestDataPreparator;
++import org.kuali.kfs.sys.context.SpringContext;
++import org.kuali.rice.kns.service.DateTimeService;
++import org.kuali.rice.kns.service.KNSServiceLocator;
++
++import edu.arizona.kfs.module.ld.batch.dataaccess.LaborEncumbranceAdjustmentDao;
++import edu.arizona.kfs.module.ld.batch.dataaccess.impl.LaborEncumbranceAdjustmentDaoJdbc;
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++import edu.arizona.kfs.module.ld.batch.service.impl.LaborEncumbranceAdjustmentServiceImpl;
++
++@ConfigureContext
++public class LaborEncumbranceAdjustmentJobTest extends LaborOriginEntryTestBase {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentJobTest.class);
++    Properties testData;
++    File inputFile;
++    File inputDoneFile;
++    File sortedInputFile;
++    File balanceFile;
++    File outputFile;
++    File errorFile;
++    File nightlyOutFile;
++    File nightlyOutBackupFile;
++    File laborReportsDirectory;
++    
++    LaborBuildEncumbranceBalanceFileStep buildEncumbranceBalanceFileStep;
++    LaborSortEncumbranceFileStep sortEncumbranceFileStep;
++    LaborCalculateEncumbranceAdjustmentsStep adjustmentsStep;
++    LaborAppendEncumbranceTransactionsStep appendStep;
++    
++    public LaborEncumbranceAdjustmentJobTest() {
++        // load testing data properties
++        String propertiesFileName = this.getClass().getPackage().getName().replace('.', '/') + "/laborEncumbranceAdjustmentJobTest.properties";
++        testData = TestDataPreparator.loadPropertiesFromClassPath(propertiesFileName);
++        // set the classes under test to debugging output
++        Logger.getLogger(LaborEncumbranceAdjustmentServiceImpl.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborSortEncumbranceFileStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborBuildEncumbranceBalanceFileStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborCalculateEncumbranceAdjustmentsStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborAppendEncumbranceTransactionsStep.class).setLevel(Level.DEBUG);
++    }
++
++    /**
++     * get the name of the batch directory
++     * @return the name of the batch directory
++     */
++    protected String getBatchDirectoryName() {
++        return SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep").getBatchFileDirectoryName();
++    }
++
++    @Override
++    public void setUp() throws Exception {
++        super.setUp();
++        if ( buildEncumbranceBalanceFileStep == null ) {
++            // get steps
++            buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
++            sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
++            adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
++            appendStep = SpringContext.getBean(LaborAppendEncumbranceTransactionsStep.class,"laborAppendEncumbranceTransactionsStep");
++            // get file names
++            balanceFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputDoneFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
++            sortedInputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            outputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            errorFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            nightlyOutFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborConstants.BatchFileSystem.NIGHTLY_OUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            nightlyOutBackupFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.NIGHTLY_OUT_BACKUP + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
++        }
++        LOG.info("Deleting all files from " + buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
++        // clear out any existing files
++        for ( File dirEntry : new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() ).listFiles() ) {
++            if ( dirEntry.isFile() ) {
++                dirEntry.delete();
++            }
++        }
++    }
++    
++    
++    protected void checkDao( LaborEncumbranceAdjustmentDao dao ) {
++        assertNotNull( "Unable to retrieve DAO", dao );
++        assertTrue( "DAO must be instance of LaborEncumbranceAdjustmentDaoJdbc", dao instanceof LaborEncumbranceAdjustmentDaoJdbc );
++    }
++    
++    public void testBuildEncumbranceBalanceFileStep_NoBalances() throws Exception {
++        assertNotNull( "Unable to retrieve LaborBuildEncumbranceBalanceFileStep", buildEncumbranceBalanceFileStep);
++        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++        checkDao(dao);
++        testDataToFile( "testBuildEncumbranceBalanceFileStep_NoBalances", inputFile);
++        inputDoneFile.createNewFile();
++        try {        
++            // pass in an additional where clause that will retrieve no records
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND 0=1\n\n" );
++            boolean result = buildEncumbranceBalanceFileStep.execute("testBuildEncumbranceBalanceFileStep_NoBalances", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            
++            assertTrue( "Even if no balances, a file should have been created.", balanceFile.exists() );
++            assertEquals( "The balance file should be empty when no balance records", 0, balanceFile.length() );
++            
++            assertTrue( "Step failed - returned false", result );
++        } finally {
++            
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
++        }
++    }
++    
++//    public void testBuildEncumbranceBalanceFileStep() {
++//        LaborBuildEncumbranceBalanceFileStep step = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
++//        assertNotNull( "Unable to retrieve LaborBuildEncumbranceBalanceFileStep", step);
++//        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++//        // pass in an additional where clause
++//        checkDao(dao);
++//        File outputFile = new File( step.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++//        try {        
++//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND fin_coa_cd = 'ZZ'\n\n" );
++//            
++//            if ( outputFile.exists() ) {
++//                outputFile.delete();
++//            }
++//            
++//        } finally {
++//            
++//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
++//            if ( outputFile.exists() ) {
++//                outputFile.delete();
++//            }
++//        }
++//    }
++    
++    public void testSortEncumbranceFileStep() throws Exception {
++        testDataToFile( "sortEncumbranceFile", inputFile);
++        assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
++        inputDoneFile.createNewFile();
++        String inputData = fileContentsToString( inputFile );
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
++        String outputData = fileContentsToString( sortedInputFile );
++        System.out.println( "UNSORTED INPUT FILE:\n" + inputData );
++        System.out.println( "SORTED OUTPUT FILE:\n" + outputData );
++        assertFalse( "Files should not be the same", inputData.equals(outputData));
++    }
++    
++    protected List<LaborOriginEntry> testDataToOriginEntries( String dataSection ) {
++        // build and save an origin entry file by using the properties file
++        int numData = Integer.parseInt(testData.getProperty( dataSection + ".numData" ));
++        OriginEntryGroup group = new OriginEntryGroup();
++        group.setId(12345);
++        return LaborTestDataPreparator.getLaborOriginEntryList(testData, dataSection + ".testData.", numData, group);
++    }
++    
++    protected void testDataToFile( String dataSection, File file ) throws Exception {
++        List<LaborOriginEntry> laborEntries = testDataToOriginEntries(dataSection);
++        if ( file.exists() ) {
++            file.delete();
++        }
++        PrintStream ps = new PrintStream(file);
++        for ( LaborOriginEntry e : laborEntries ) {
++            ps.println( e.getLine() );
++        }
++        ps.close();
++    }
++    
++    protected void buildBalanceFile( String dataSection ) throws Exception {
++        Map<String, Integer> lMap = new LaborOriginEntryFieldUtil().getFieldLengthMap();
++        StringBuffer lineBuffer = new StringBuffer();
++        if ( balanceFile.exists() ) {
++            balanceFile.delete();
++        }        
++        PrintStream outputStream = new PrintStream(balanceFile);
++        int numData = Integer.parseInt(testData.getProperty( dataSection + ".numData" ));
++        for ( int i = 1; i <= numData; i++ ) {
++            String lineDataString = testData.getProperty( dataSection + ".testData." + i );            
++            // parse the line into an array
++            String[] lineData = lineDataString.split(",");
++            
++            lineBuffer.setLength(0); // reset the existing string buffer
++            // write data to outputStream
++            lineBuffer.append( StringUtils.rightPad(lineData[0], lMap.get(KFSPropertyConstants.EMPLID), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[1], lMap.get(KFSPropertyConstants.POSITION_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[2], lMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[3], lMap.get(KFSPropertyConstants.ACCOUNT_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[4], lMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[5], lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[6], lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[7], lMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE), ' ') );
++            BigDecimal bal = new BigDecimal( lineData[8] );
++            lineBuffer.append((bal.signum() == -1)?'-':'+');
++            lineBuffer.append( StringUtils.rightPad(bal.abs().toString(), lMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT), ' ') );
++            outputStream.println(lineBuffer);
++        }
++        outputStream.close();
++    }
++    
++    protected String fileContentsToString( File file ) throws Exception {
++        BufferedReader r = new BufferedReader( new FileReader( file ) );
++        StringBuffer inputData = new StringBuffer();
++        String line;
++        while ( (line = r.readLine()) != null ) {
++            inputData.append(line);
++            inputData.append( '\n' );
++        }
++        r.close();
++        return inputData.toString();
++    }
++
++    public void testCalculateEncumbranceAdjustmentsStep() throws Exception {
++        LOG.info("Deleting all files from " + laborReportsDirectory.getAbsolutePath() );
++        // clear out any existing files
++        for ( File dirEntry : laborReportsDirectory.listFiles() ) {
++            if ( dirEntry.isFile() ) {
++                dirEntry.delete();
++            }
++        }
++        // build a temp balance file from the properties file
++        buildBalanceFile("balances");
++        // build and save an origin entry file by using the properties file
++        testDataToFile( "sortEncumbranceFile", inputFile);
++        assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
++        inputDoneFile.createNewFile();
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
++        
++        adjustmentsStep.execute("testCalculateEncumbranceAdjustmentsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        // check parsing/line error
++        
++        // TODO: add line which will not parse (bad date format?)
++            // would need to append to file since file created by LD code
++        
++        // check that no record exists for employee 2222222222
++        
++        assertTrue( "Output File does not exist: " + outputFile.getAbsolutePath(), outputFile.exists() );
++        String outputData = fileContentsToString(outputFile);
++        System.out.println("RESULT FILE:\n" + outputData);
++        // read in the results file and create the origin entries
++        List<LaborOriginEntry> correctResults = testDataToOriginEntries("adjustmentTestResults");
++        System.out.println("CORRECT DATA:");
++        StringBuffer sb = new StringBuffer( outputData.length() );
++        for ( LaborOriginEntry e : correctResults ) {
++            // fix the date to match that inserted by the process
++            //e.setTransactionDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            e.setTransactionPostingDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            sb.append( e.getLine() ).append( '\n' );
++        }
++        System.out.println(sb);
++        assertEquals( "Output file and expected output is not equal.", sb.toString(), outputData );
++        
++        assertTrue( "A report file should have been created", laborReportsDirectory.list().length > 0 );
++    }
++
++    public void testAppendEncumbranceTransactionsStep_NoNightlyOutFile() throws Exception {
++        // create a pseudo output file from the process
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // ensure that a backup was not made
++        assertFalse( "nightly out backup file created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
++    }
++
++    public void testAppendEncumbranceTransactionsStep_EmptyNightlyOutFile() throws Exception {
++        // create a pseudo output file from the process
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++
++        // create empty file
++        nightlyOutFile.createNewFile();
++        assertTrue( "file create failed", nightlyOutFile.exists() );
++        
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // ensure that a backup was made and that it is equal to the original input file
++        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
++        assertEquals( "Nightly out backup file is not empty", "", nightlyOutBackupFileContents );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
++    }
++
++    public void testAppendEncumbranceTransactionsStep() throws Exception {
++        // test with no file
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // create a test nightly out file
++        testDataToFile( "nightlyOutFile", nightlyOutFile);
++        String originalNightlyOut = fileContentsToString(nightlyOutFile);
++        // create a pseudo output file from the process
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++
++        // ensure that a backup was made and that it is equal to the original input file
++        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
++        
++        assertEquals( "Nightly out and backup file do not match.", originalNightlyOut, nightlyOutBackupFileContents );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        System.out.println("RESULT FILE:\n" + mergedFileContents);
++        System.out.println("CORRECT DATA:\n" + originalNightlyOut + outputFileContents);
++        assertEquals( "file merge not correct", originalNightlyOut + outputFileContents, mergedFileContents );
++    }
++    
++}

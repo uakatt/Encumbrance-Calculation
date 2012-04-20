@@ -1,0 +1,1851 @@
+Index: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+===================================================================
+--- financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 0)
++++ financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties	(revision 9307)
+@@ -0,0 +1,54 @@
++deliminator = ,
++fieldNames  = emplid,employeeRecord,positionNumber,universityFiscalYear,chartOfAccountsCode,accountNumber,subAccountNumber,financialObjectCode,financialSubObjectCode,financialBalanceTypeCode,financialObjectTypeCode,universityFiscalPeriodCode,financialDocumentTypeCode,financialSystemOriginationCode,documentNumber,transactionLedgerEntrySequenceNumber,transactionLedgerEntryAmount,transactionDebitCreditCode,transactionDate,organizationDocumentNumber,projectCode,organizationReferenceId,referenceFinancialDocumentTypeCode,referenceFinancialSystemOriginationCode,referenceFinancialDocumentNumber,financialDocumentReversalDate,transactionEncumbranceUpdateCode,
++
++# just need 1 record to get the fiscal year
++testBuildEncumbranceBalanceFileStep_NoBalances.numData=1
++testBuildEncumbranceBalanceFileStep_NoBalances.testData.1=1111111111,1,1111,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
++
++sortEncumbranceFile.numData=5
++sortEncumbranceFile.testData.1=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.2=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,100,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++sortEncumbranceFile.testData.5=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,300,D,2010-02-28,,----------,,,,,,,
++# The bad line logic doesn't really work, since it goes through a process in making the 
++# file which corrects the bad data :(
++# this is a bad line - should not parse
++#sortEncumbranceFile.testData.6=3333333333,3,3333,20Z10,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,7,ABC,D,2010-02-28,,----------,,,,,,,
++# this is another bad line - the date is invalid
++#sortEncumbranceFile.testData.7=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,6,666,D,0000A00-00,,----------,,,,,,,
++
++balances.numData=5
++# matches data line 2, but amount is greater, should result in a decrease to the amount on the input file
++balances.testData.1=1111111111,1111,ZZ,1234567,-----,EX,XYZA,---,345
++# matches data line 1 exactly, should result in a no-op 
++balances.testData.2=2222222222,2222,ZZ,2345678,-----,EX,XYZA,---,200
++# matches line 3 - increases the line
++balances.testData.3=3333333333,3333,ZZ,3456789,-----,EX,XYZA,---,250
++# line 4 has no match - full entry will be created
++# line 5 has a employee match but different FAU
++balances.testData.4=5555555555,5555,ZZ,9090909,-----,EX,XYZA,---,450
++# this line has no match in the encumbrance file, it should be cleared
++balances.testData.5=6666666666,6666,ZZ,8080808,-----,EX,XYZA,---,600
++
++adjustmentTestResults.numData=6
++# net of the 11111111111 lines
++adjustmentTestResults.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,245,C,2010-02-28,,----------,,,,,,,
++# net of the 33333333333 lines
++adjustmentTestResults.testData.2=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,50,D,2010-02-28,,----------,,,,,,,
++# full creation of the 444444444 encumbrance
++adjustmentTestResults.testData.3=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++# Creation of the 5555555555 line with the 5678901 account
++adjustmentTestResults.testData.4=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++# Clearing of the 5555555555 line from the balance file
++adjustmentTestResults.testData.5=5555555555,,5555,2010,ZZ,9090909,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,450,C,2010-02-28,,----------,,,,,,,
++# clearing of the 6666666666 balance line (no match in data file)
++adjustmentTestResults.testData.6=6666666666,,6666,2010,ZZ,8080808,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,,600,C,2010-02-28,,----------,,,,,,,
++
++# nightly out file for use in testing the append process
++nightlyOutFile.numData=5
++nightlyOutFile.testData.1=1111111111,1,1111,2010,ZZ,1234567,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,1,100,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.2=5555555555,5,5555,2010,ZZ,5678901,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,5,500,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.3=3333333333,3,3333,2010,ZZ,3456789,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,3,300,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.4=4444444444,4,4444,2010,ZZ,4567890,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,4,400,D,2010-02-28,,----------,,,,,,,
++nightlyOutFile.testData.5=2222222222,2,2222,2010,ZZ,2345678,-----,XYZA,---,IE,EX,08,LLPE,UE,654321,2,200,D,2010-02-28,,----------,,,,,,,
+
+Property changes on: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java
+===================================================================
+--- financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java	(revision 0)
++++ financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java	(revision 9307)
+@@ -0,0 +1,64 @@
++/*
++ * Copyright 2010 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.arizona.kfs.module.ld.batch.dataaccess.impl;
++
++import java.io.File;
++import java.util.List;
++import java.util.Map;
++
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.module.ld.LaborConstants;
++import org.kuali.kfs.module.ld.batch.service.LaborOriginEntryTestBase;
++import org.kuali.kfs.sys.ConfigureContext;
++import org.kuali.kfs.sys.context.SpringContext;
++
++import edu.arizona.kfs.module.ld.batch.dataaccess.LaborEncumbranceAdjustmentDao;
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++@ConfigureContext
++public class LaborEncumbranceAdjustmentDaoJdbcTest extends LaborOriginEntryTestBase {
++
++    protected static final int LABOR_TESTING_YEAR = 2009;
++    
++    protected static final String ENCUMBRANCE_BALANCE_COUNT_SQL = 
++        "SELECT COUNT(*) AS NUM FROM (\n" +
++        " select l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, " +
++        " l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
++        "    from LD_LDGR_BAL_T l, ld_labor_obj_t lo\n" + 
++        "    WHERE l.UNIV_FISCAL_YR = " + LABOR_TESTING_YEAR + "\n" + 
++        "      AND l.FIN_BALANCE_TYP_CD = 'IE'\n" + 
++        "      AND lo.univ_fiscal_yr = l.UNIV_FISCAL_YR\n" + 
++        "      AND lo.FIN_COA_CD = l.FIN_COA_CD\n" + 
++        "      AND lo.FIN_OBJECT_CD = l.FIN_OBJECT_CD\n" + 
++        "      AND lo.FINOBJ_FRNGSLRY_CD = '" + LaborConstants.LABOR_OBJECT_SALARY_CODE + "'" +
++        "    GROUP BY l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
++        "    HAVING SUM(l.ACLN_ANNL_BAL_AMT) != 0\n" +
++        ") a"; 
++    
++    public void testBuildFileForEncumbranceBalances() {
++        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++        assertNotNull( "Unable to retrieve DAO", dao );
++        assertTrue( "DAO must be instance of LaborEncumbranceAdjustmentDaoJdbc", dao instanceof LaborEncumbranceAdjustmentDaoJdbc );
++        
++        String fileName = getBatchDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        int numBalances = dao.buildFileForEncumbranceBalances(LABOR_TESTING_YEAR, new File(fileName));
++        assertFalse("No balances found for given testing year: " + LABOR_TESTING_YEAR, numBalances == 0);
++        List<Map<String,Object>> x = unitTestSqlDao.sqlSelect(ENCUMBRANCE_BALANCE_COUNT_SQL);
++        int dbBalanceRecords = Integer.parseInt( x.get(0).get("NUM").toString() );
++        assertEquals( "Wrong number of records in file.", dbBalanceRecords, numBalances );
++    }
++
++}
+
+Property changes on: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+===================================================================
+--- financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 0)
++++ financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java	(revision 9307)
+@@ -0,0 +1,349 @@
++/*
++ * Copyright 2010 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.FileFilter;
++import java.io.FileReader;
++import java.io.PrintStream;
++import java.math.BigDecimal;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++
++import org.apache.commons.lang.StringUtils;
++import org.apache.log4j.Level;
++import org.apache.log4j.Logger;
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.gl.businessobject.OriginEntryGroup;
++import org.kuali.kfs.module.ld.LaborConstants;
++import org.kuali.kfs.module.ld.batch.service.LaborOriginEntryTestBase;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
++import org.kuali.kfs.module.ld.util.LaborTestDataPreparator;
++import org.kuali.kfs.sys.ConfigureContext;
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.kfs.sys.TestDataPreparator;
++import org.kuali.kfs.sys.context.SpringContext;
++import org.kuali.rice.kns.service.DateTimeService;
++import org.kuali.rice.kns.service.KNSServiceLocator;
++
++import edu.arizona.kfs.module.ld.batch.dataaccess.LaborEncumbranceAdjustmentDao;
++import edu.arizona.kfs.module.ld.batch.dataaccess.impl.LaborEncumbranceAdjustmentDaoJdbc;
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++import edu.arizona.kfs.module.ld.batch.service.impl.LaborEncumbranceAdjustmentServiceImpl;
++
++@ConfigureContext
++public class LaborEncumbranceAdjustmentJobTest extends LaborOriginEntryTestBase {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentJobTest.class);
++    Properties testData;
++    File inputFile;
++    File inputDoneFile;
++    File sortedInputFile;
++    File balanceFile;
++    File outputFile;
++    File errorFile;
++    File nightlyOutFile;
++    File nightlyOutBackupFile;
++    File laborReportsDirectory;
++    
++    LaborBuildEncumbranceBalanceFileStep buildEncumbranceBalanceFileStep;
++    LaborSortEncumbranceFileStep sortEncumbranceFileStep;
++    LaborCalculateEncumbranceAdjustmentsStep adjustmentsStep;
++    LaborAppendEncumbranceTransactionsStep appendStep;
++    
++    public LaborEncumbranceAdjustmentJobTest() {
++        // load testing data properties
++        String propertiesFileName = this.getClass().getPackage().getName().replace('.', '/') + "/laborEncumbranceAdjustmentJobTest.properties";
++        testData = TestDataPreparator.loadPropertiesFromClassPath(propertiesFileName);
++        // set the classes under test to debugging output
++        Logger.getLogger(LaborEncumbranceAdjustmentServiceImpl.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborSortEncumbranceFileStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborBuildEncumbranceBalanceFileStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborCalculateEncumbranceAdjustmentsStep.class).setLevel(Level.DEBUG);
++        Logger.getLogger(LaborAppendEncumbranceTransactionsStep.class).setLevel(Level.DEBUG);
++    }
++
++    /**
++     * get the name of the batch directory
++     * @return the name of the batch directory
++     */
++    protected String getBatchDirectoryName() {
++        return SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep").getBatchFileDirectoryName();
++    }
++
++    @Override
++    public void setUp() throws Exception {
++        super.setUp();
++        if ( buildEncumbranceBalanceFileStep == null ) {
++            // get steps
++            buildEncumbranceBalanceFileStep = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
++            sortEncumbranceFileStep = SpringContext.getBean(LaborSortEncumbranceFileStep.class, "laborSortEncumbranceFileStep");
++            adjustmentsStep = SpringContext.getBean(LaborCalculateEncumbranceAdjustmentsStep.class, "laborCalculateEncumbranceAdjustmentsStep" );
++            appendStep = SpringContext.getBean(LaborAppendEncumbranceTransactionsStep.class,"laborAppendEncumbranceTransactionsStep");
++            // get file names
++            balanceFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            inputDoneFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION );
++            sortedInputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            outputFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            errorFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            nightlyOutFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborConstants.BatchFileSystem.NIGHTLY_OUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            nightlyOutBackupFile = new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.NIGHTLY_OUT_BACKUP + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            laborReportsDirectory = new File( KNSServiceLocator.getKualiConfigurationService().getPropertyString(KFSConstants.REPORTS_DIRECTORY_KEY), "ld" );
++        }
++        LOG.info("Deleting all files from " + buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() );
++        // clear out any existing files
++        for ( File dirEntry : new File( buildEncumbranceBalanceFileStep.getBatchFileDirectoryName() ).listFiles() ) {
++            if ( dirEntry.isFile() ) {
++                dirEntry.delete();
++            }
++        }
++    }
++    
++    
++    protected void checkDao( LaborEncumbranceAdjustmentDao dao ) {
++        assertNotNull( "Unable to retrieve DAO", dao );
++        assertTrue( "DAO must be instance of LaborEncumbranceAdjustmentDaoJdbc", dao instanceof LaborEncumbranceAdjustmentDaoJdbc );
++    }
++    
++    public void testBuildEncumbranceBalanceFileStep_NoBalances() throws Exception {
++        assertNotNull( "Unable to retrieve LaborBuildEncumbranceBalanceFileStep", buildEncumbranceBalanceFileStep);
++        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++        checkDao(dao);
++        testDataToFile( "testBuildEncumbranceBalanceFileStep_NoBalances", inputFile);
++        inputDoneFile.createNewFile();
++        try {        
++            // pass in an additional where clause that will retrieve no records
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND 0=1\n\n" );
++            boolean result = buildEncumbranceBalanceFileStep.execute("testBuildEncumbranceBalanceFileStep_NoBalances", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            
++            assertTrue( "Even if no balances, a file should have been created.", balanceFile.exists() );
++            assertEquals( "The balance file should be empty when no balance records", 0, balanceFile.length() );
++            
++            assertTrue( "Step failed - returned false", result );
++        } finally {
++            
++            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
++        }
++    }
++    
++//    public void testBuildEncumbranceBalanceFileStep() {
++//        LaborBuildEncumbranceBalanceFileStep step = SpringContext.getBean(LaborBuildEncumbranceBalanceFileStep.class, "laborBuildEncumbranceBalanceFileStep");
++//        assertNotNull( "Unable to retrieve LaborBuildEncumbranceBalanceFileStep", step);
++//        LaborEncumbranceAdjustmentDao dao = SpringContext.getBean(LaborEncumbranceAdjustmentDao.class);
++//        // pass in an additional where clause
++//        checkDao(dao);
++//        File outputFile = new File( step.getBatchFileDirectoryName() + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++//        try {        
++//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("\n\nAND fin_coa_cd = 'ZZ'\n\n" );
++//            
++//            if ( outputFile.exists() ) {
++//                outputFile.delete();
++//            }
++//            
++//        } finally {
++//            
++//            ((LaborEncumbranceAdjustmentDaoJdbc)dao).setAdditionalWhereClause("");
++//            if ( outputFile.exists() ) {
++//                outputFile.delete();
++//            }
++//        }
++//    }
++    
++    public void testSortEncumbranceFileStep() throws Exception {
++        testDataToFile( "sortEncumbranceFile", inputFile);
++        assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
++        inputDoneFile.createNewFile();
++        String inputData = fileContentsToString( inputFile );
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
++        String outputData = fileContentsToString( sortedInputFile );
++        System.out.println( "UNSORTED INPUT FILE:\n" + inputData );
++        System.out.println( "SORTED OUTPUT FILE:\n" + outputData );
++        assertFalse( "Files should not be the same", inputData.equals(outputData));
++    }
++    
++    protected List<LaborOriginEntry> testDataToOriginEntries( String dataSection ) {
++        // build and save an origin entry file by using the properties file
++        int numData = Integer.parseInt(testData.getProperty( dataSection + ".numData" ));
++        OriginEntryGroup group = new OriginEntryGroup();
++        group.setId(12345);
++        return LaborTestDataPreparator.getLaborOriginEntryList(testData, dataSection + ".testData.", numData, group);
++    }
++    
++    protected void testDataToFile( String dataSection, File file ) throws Exception {
++        List<LaborOriginEntry> laborEntries = testDataToOriginEntries(dataSection);
++        if ( file.exists() ) {
++            file.delete();
++        }
++        PrintStream ps = new PrintStream(file);
++        for ( LaborOriginEntry e : laborEntries ) {
++            ps.println( e.getLine() );
++        }
++        ps.close();
++    }
++    
++    protected void buildBalanceFile( String dataSection ) throws Exception {
++        Map<String, Integer> lMap = new LaborOriginEntryFieldUtil().getFieldLengthMap();
++        StringBuffer lineBuffer = new StringBuffer();
++        if ( balanceFile.exists() ) {
++            balanceFile.delete();
++        }        
++        PrintStream outputStream = new PrintStream(balanceFile);
++        int numData = Integer.parseInt(testData.getProperty( dataSection + ".numData" ));
++        for ( int i = 1; i <= numData; i++ ) {
++            String lineDataString = testData.getProperty( dataSection + ".testData." + i );            
++            // parse the line into an array
++            String[] lineData = lineDataString.split(",");
++            
++            lineBuffer.setLength(0); // reset the existing string buffer
++            // write data to outputStream
++            lineBuffer.append( StringUtils.rightPad(lineData[0], lMap.get(KFSPropertyConstants.EMPLID), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[1], lMap.get(KFSPropertyConstants.POSITION_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[2], lMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[3], lMap.get(KFSPropertyConstants.ACCOUNT_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[4], lMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[5], lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[6], lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE), ' ') );
++            lineBuffer.append( StringUtils.rightPad(lineData[7], lMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE), ' ') );
++            BigDecimal bal = new BigDecimal( lineData[8] );
++            lineBuffer.append((bal.signum() == -1)?'-':'+');
++            lineBuffer.append( StringUtils.rightPad(bal.abs().toString(), lMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT), ' ') );
++            outputStream.println(lineBuffer);
++        }
++        outputStream.close();
++    }
++    
++    protected String fileContentsToString( File file ) throws Exception {
++        BufferedReader r = new BufferedReader( new FileReader( file ) );
++        StringBuffer inputData = new StringBuffer();
++        String line;
++        while ( (line = r.readLine()) != null ) {
++            inputData.append(line);
++            inputData.append( '\n' );
++        }
++        r.close();
++        return inputData.toString();
++    }
++
++    public void testCalculateEncumbranceAdjustmentsStep() throws Exception {
++        LOG.info("Deleting all files from " + laborReportsDirectory.getAbsolutePath() );
++        // clear out any existing files
++        for ( File dirEntry : laborReportsDirectory.listFiles() ) {
++            if ( dirEntry.isFile() ) {
++                dirEntry.delete();
++            }
++        }
++        // build a temp balance file from the properties file
++        buildBalanceFile("balances");
++        // build and save an origin entry file by using the properties file
++        testDataToFile( "sortEncumbranceFile", inputFile);
++        assertTrue( "Input file not created: " + inputFile.getAbsolutePath(), inputFile.exists() );
++        inputDoneFile.createNewFile();
++        sortEncumbranceFileStep.execute("testSortEncumbranceFileStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());        
++        assertTrue( "Sorted Input File Not Created: " + sortedInputFile.getAbsolutePath(), sortedInputFile.exists() );
++        
++        adjustmentsStep.execute("testCalculateEncumbranceAdjustmentsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        // check parsing/line error
++        
++        // TODO: add line which will not parse (bad date format?)
++            // would need to append to file since file created by LD code
++        
++        // check that no record exists for employee 2222222222
++        
++        assertTrue( "Output File does not exist: " + outputFile.getAbsolutePath(), outputFile.exists() );
++        String outputData = fileContentsToString(outputFile);
++        System.out.println("RESULT FILE:\n" + outputData);
++        // read in the results file and create the origin entries
++        List<LaborOriginEntry> correctResults = testDataToOriginEntries("adjustmentTestResults");
++        System.out.println("CORRECT DATA:");
++        StringBuffer sb = new StringBuffer( outputData.length() );
++        for ( LaborOriginEntry e : correctResults ) {
++            // fix the date to match that inserted by the process
++            //e.setTransactionDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            e.setTransactionPostingDate(SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++            sb.append( e.getLine() ).append( '\n' );
++        }
++        System.out.println(sb);
++        assertEquals( "Output file and expected output is not equal.", sb.toString(), outputData );
++        
++        assertTrue( "A report file should have been created", laborReportsDirectory.list().length > 0 );
++    }
++
++    public void testAppendEncumbranceTransactionsStep_NoNightlyOutFile() throws Exception {
++        // create a pseudo output file from the process
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // ensure that a backup was not made
++        assertFalse( "nightly out backup file created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
++    }
++
++    public void testAppendEncumbranceTransactionsStep_EmptyNightlyOutFile() throws Exception {
++        // create a pseudo output file from the process
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++
++        // create empty file
++        nightlyOutFile.createNewFile();
++        assertTrue( "file create failed", nightlyOutFile.exists() );
++        
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // ensure that a backup was made and that it is equal to the original input file
++        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
++        assertEquals( "Nightly out backup file is not empty", "", nightlyOutBackupFileContents );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        assertEquals( "file merge not correct", outputFileContents, mergedFileContents );
++    }
++
++    public void testAppendEncumbranceTransactionsStep() throws Exception {
++        // test with no file
++        testDataToFile( "sortEncumbranceFile", outputFile);
++        String outputFileContents = fileContentsToString(outputFile);
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++        
++        // create a test nightly out file
++        testDataToFile( "nightlyOutFile", nightlyOutFile);
++        String originalNightlyOut = fileContentsToString(nightlyOutFile);
++        // create a pseudo output file from the process
++        appendStep.execute("testAppendEncumbranceTransactionsStep", SpringContext.getBean(DateTimeService.class).getCurrentSqlDate());
++
++        // ensure that a backup was made and that it is equal to the original input file
++        assertTrue( "nightly out backup file not created: " + nightlyOutBackupFile.getAbsolutePath(), nightlyOutBackupFile.exists() );
++        String nightlyOutBackupFileContents = fileContentsToString( nightlyOutBackupFile );
++        
++        assertEquals( "Nightly out and backup file do not match.", originalNightlyOut, nightlyOutBackupFileContents );
++
++        // pull the contents of the new nightly out file
++        String mergedFileContents = fileContentsToString(nightlyOutFile);
++        System.out.println("RESULT FILE:\n" + mergedFileContents);
++        System.out.println("CORRECT DATA:\n" + originalNightlyOut + outputFileContents);
++        assertEquals( "file merge not correct", originalNightlyOut + outputFileContents, mergedFileContents );
++    }
++    
++}
+
+Property changes on: financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java	(revision 9307)
+@@ -0,0 +1,114 @@
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.BufferedReader;
++import java.io.BufferedWriter;
++import java.io.File;
++import java.io.FileReader;
++import java.io.FileWriter;
++import java.io.IOException;
++import java.io.PrintStream;
++import java.util.Date;
++
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.module.ld.LaborConstants;
++import org.kuali.kfs.sys.batch.AbstractStep;
++import org.springframework.util.StopWatch;
++
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++/**
++ * Sorts the incoming encumbrance balance file from HCM.
++ * 
++ * @author jonathan
++ */
++public class LaborAppendEncumbranceTransactionsStep extends AbstractStep {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborAppendEncumbranceTransactionsStep.class);
++    protected String batchFileDirectoryName;
++    
++    /**
++     * Sorts the incoming encumbrance balance file from HCM.
++     * 
++     * @param jobName the name of the job this step is being run as part of
++     * @param jobRunDate the time/date the job was started
++     * @return true if the job completed successfully, false if otherwise
++     * @see org.kuali.kfs.sys.batch.Step#execute(java.lang.String)
++     */
++    public boolean execute(String jobName, Date jobRunDate) {
++        StopWatch stopWatch = null;
++        boolean succeeded = true;
++        if (LOG.isDebugEnabled()) {
++            stopWatch = new StopWatch();
++            stopWatch.start(jobName);
++        }
++
++        // get the nightly out file
++        String nightlyOutFileName = batchFileDirectoryName + File.separator + LaborConstants.BatchFileSystem.NIGHTLY_OUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File nightlyOutFile = new File( nightlyOutFileName );
++
++        // get the nightly out backup file handle
++        String nightlyOutBackupFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.NIGHTLY_OUT_BACKUP + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File nightlyOutBackupFile = new File( nightlyOutBackupFileName );
++
++        // get the results of the encumbrance difference processing
++        String encumbranceFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File encumbranceFile = new File( encumbranceFileName );
++        
++        // backup the nightly out file
++        if ( nightlyOutFile.exists() ) {
++            succeeded = copyFile( nightlyOutFile, nightlyOutBackupFile );
++        }
++
++        // loop over the lines in the new file - add them to the original nightly out file
++        if ( succeeded ) {
++            try {
++                BufferedWriter outputWriter = new BufferedWriter(new FileWriter(nightlyOutFile,true));
++                BufferedReader inputBufferedReader = new BufferedReader(new FileReader(encumbranceFile));
++            
++                String currentLine = inputBufferedReader.readLine();
++                while (currentLine != null) {
++                    outputWriter.write(currentLine);
++                    outputWriter.newLine();
++                    currentLine = inputBufferedReader.readLine();
++                }
++                inputBufferedReader.close();    
++                outputWriter.close();            
++            } catch (IOException e) {
++                LOG.fatal("problem appending encumbrance entries to the nightly out file - aborting: " + e.getMessage(),e);
++                succeeded = false;
++            }
++        }
++        
++        if (LOG.isDebugEnabled()) {
++            stopWatch.stop();
++            LOG.debug(this.getClass().getName() + " of " + jobName + " took " + (stopWatch.getTotalTimeSeconds() / 60.0) + " minutes to complete");
++        }
++        return succeeded;
++    }
++   
++    public void setBatchFileDirectoryName(String batchFileDirectoryName) {
++        this.batchFileDirectoryName = batchFileDirectoryName;
++    }
++
++    protected boolean copyFile(File inputFile, File outputFile){
++        try {
++            FileReader inputFileReader = new FileReader(inputFile);
++            outputFile.createNewFile();
++            PrintStream outputFileStream = new PrintStream(outputFile);
++
++            BufferedReader inputBufferedReader = new BufferedReader(inputFileReader);
++        
++            String currentLine = inputBufferedReader.readLine();
++            while (currentLine != null) {
++                outputFileStream.printf("%s\n", currentLine);
++                currentLine = inputBufferedReader.readLine();
++            }
++            inputBufferedReader.close();    
++            outputFileStream.close();    
++            return true;
++        } catch (IOException e) {
++            LOG.fatal("problem backing up labor nightly out file - aborting: " + e.getMessage(),e);
++            return false;
++        }             
++    }
++    
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 9307)
+@@ -0,0 +1,447 @@
++package edu.arizona.kfs.module.ld.batch.service.impl;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileReader;
++import java.io.IOException;
++import java.io.PrintStream;
++import java.sql.Date;
++import java.util.List;
++import java.util.Map;
++
++import org.apache.commons.lang.StringUtils;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.kfs.sys.Message;
++import org.kuali.kfs.sys.batch.service.WrappingBatchService;
++import org.kuali.kfs.sys.context.SpringContext;
++import org.kuali.kfs.sys.service.OptionsService;
++import org.kuali.kfs.sys.service.ReportWriterService;
++import org.kuali.rice.kns.service.DateTimeService;
++import org.kuali.rice.kns.util.KualiDecimal;
++
++import edu.arizona.kfs.module.ld.batch.dataaccess.LaborEncumbranceAdjustmentDao;
++import edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceJobReportData;
++import edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceReportWriterService;
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++public class LaborEncumbranceAdjustmentServiceImpl implements LaborEncumbranceAdjustmentService {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentServiceImpl.class);
++
++    protected LaborEncumbranceAdjustmentDao laborEncumbranceAdjustmentDao;
++    protected DateTimeService dateTimeService;
++    protected LaborEncumbranceReportWriterService reportWriterService;
++
++    /**
++     * @see edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService#buildBalanceFile(java.lang.Integer, java.io.File)
++     */
++    public boolean buildBalanceFile(Integer fiscalYear, File outputFile) {
++        int outputRecords = laborEncumbranceAdjustmentDao.buildFileForEncumbranceBalances(fiscalYear, outputFile);
++
++        return true; // building the balance file should never stop the batch
++    }
++
++    /**
++     * @see edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService#buildEncumbranceDifferenceFile(java.io.File, java.io.File, java.io.File, java.io.File)
++     */
++    public boolean buildEncumbranceDifferenceFile(File inputFile, File balanceFile, File outputFile, File errorFile) {
++        BufferedReader inputReader = null;
++        BufferedReader balanceReader = null;
++        PrintStream outputStream = null;
++        PrintStream errorStream = null;
++        Date currentDate = dateTimeService.getCurrentSqlDate();
++        LaborOriginEntry lastOriginEntry = null;
++        LaborOriginEntryToBalanceRecordComparator lineComparator = new LaborOriginEntryToBalanceRecordComparator();
++        // field length map used for parsing the balance file
++        Map<String, Integer> lMap = new LaborOriginEntryFieldUtil().getFieldLengthMap();
++
++        // counters for reporting
++        LaborEncumbranceJobReportData jobData = new LaborEncumbranceJobReportData();
++        
++        int lineNumber = 1;
++
++        try {
++            // open all the files
++            inputReader = new BufferedReader(new FileReader(inputFile));
++            balanceReader = new BufferedReader(new FileReader(balanceFile));
++            outputStream = new PrintStream(outputFile);
++            errorStream = new PrintStream(errorFile);
++
++            LOG.info("All Files Opened - starting comparisons");
++            // ok, now start up the iterators
++            String encumbranceLine = null;
++            String balanceLine = null;
++            LaborOriginEntry encumbranceEntryLine = new LaborOriginEntry();
++
++            // get the first line of each
++            encumbranceLine = inputReader.readLine();
++            balanceLine = balanceReader.readLine();
++
++            // keep processing until *both* have been exhausted
++            // the encumbrance file is assumed to be a comprehensive list of
++            // the current balances, so any "leftovers" in the balance file will
++            // need to be removed
++            while (encumbranceLine != null || balanceLine != null) {
++                if ( LOG.isDebugEnabled() ) {
++                    LOG.debug("Processing Lines:\nHCM: "+encumbranceLine + "\nBAL: "+balanceLine);
++                }
++                boolean encumbranceLineReadError = false;
++                boolean advanceEncumbranceFile = false;
++                boolean advanceBalanceFile = false;
++                if ( encumbranceLine != null ) {
++                    try {
++                        List<Message> parsingMessages = encumbranceEntryLine.setFromTextFileForBatch(encumbranceLine, lineNumber);
++                        // if the record does not parse, skip, log to the error file and continue
++                        if (!parsingMessages.isEmpty()) {
++                            jobData.errorMessages.add("Line parsing returned error messages\n**LINE: " + encumbranceLine + "\n**MESSAGES: " + parsingMessages);
++                            jobData.errorCount++;
++                            LOG.error(jobData.errorMessages.getLast());
++                            errorStream.println(encumbranceLine);
++                            encumbranceLineReadError = true;
++                            advanceEncumbranceFile = true;
++                        }
++                    }
++                    catch (Exception ex) {
++                        // the parsing blew up - write to the error file
++                        jobData.errorMessages.add("Unable to parse line - writing to error file.\n**LINE: " + encumbranceLine + "\n**Exception: " + ex.getClass().getName() + " : " + ex.getMessage() );
++                        jobData.errorCount++;
++                        LOG.error(jobData.errorMessages.getLast());
++                        errorStream.println(encumbranceLine);
++                        encumbranceLineReadError = true;
++                        advanceEncumbranceFile = true;
++                    }
++                } else { // encumbrance file is exhausted, clear out the origin entry so that it is not accidentally used
++                    if ( encumbranceEntryLine != null ) {
++                        encumbranceEntryLine = null;
++                        LOG.debug("Encumbrance file exhausted, blanking out entry line variable for rest of process");
++                    }
++                }
++                if (!encumbranceLineReadError) {
++                    if ( encumbranceEntryLine != null ) {
++                        lastOriginEntry = encumbranceEntryLine;                            
++                    }
++                    // OK, the line has been parsed - so we can now compare the records
++                    // assemble a string which matches the beginning of the balance file
++                    // so we can do a simple string comparison
++                    int compareResult = 0;
++                    if ( encumbranceEntryLine == null ) {
++                        compareResult = 1; // encumbrance file is exhausted, clear any remaining balance entries
++                    } else if ( balanceLine == null ) {
++                        compareResult = -1; // balance file is exhausted, create balances for all remaining records in the file
++                    } else { // records present in both files, run the normal compare
++                        compareResult = lineComparator.compare(encumbranceEntryLine, balanceLine);
++                    }
++                    
++                    if (compareResult == 0) { // if the strings are equal, compare the amounts
++                        LOG.debug("Key Match: Proceeding with amount comparison");
++                        // calculate the difference
++                        KualiDecimal newEncumbranceBalance = encumbranceEntryLine.getTransactionLedgerEntryAmount();
++                        // parse the amount from the balance line
++                        KualiDecimal existingEncumbranceBalance = KualiDecimal.ZERO;
++                        String amountString = balanceLine.substring(lineComparator.BALANCE_AMOUNT_POS, lineComparator.BALANCE_AMOUNT_POS+lineComparator.BALANCE_AMOUNT_LEN).trim();
++                        try {
++                            existingEncumbranceBalance = new KualiDecimal(amountString);
++                        } catch (NumberFormatException ex) {
++                            LOG.fatal("Unable to parse amount from balance file.  Amount string was: " + amountString, ex);
++                            throw new RuntimeException("Unable to parse balance amount from a system generated file.  There's a problem here!");
++                        }
++                        // if the amounts are equal, do nothing
++                        if ( LOG.isDebugEnabled() ) {
++                            LOG.debug( "Comparing Amounts: BalanceFile=" + existingEncumbranceBalance + " / InputFileAmount=" + newEncumbranceBalance );
++                        }
++                        if (existingEncumbranceBalance.equals(newEncumbranceBalance)) {
++                            LOG.debug( "Balances Match - no line created");
++                            jobData.matchingBalanceCount++;
++                        } else { // if not, create an adjusting entry
++                            KualiDecimal difference;
++                            String debitCreditCode;
++                            if (existingEncumbranceBalance.isGreaterThan(newEncumbranceBalance)) {
++                                LOG.debug( "New Balance Less - Creating a credit");
++                                // existing > new - reduce the balance
++                                difference = existingEncumbranceBalance.subtract(newEncumbranceBalance);
++                                debitCreditCode = KFSConstants.GL_CREDIT_CODE;
++                                jobData.decreasedBalanceCount++;
++                            } else {
++                                // new > existing, increase the amount encumbered
++                                LOG.debug( "New Balance More - Creating a debit to increase the amount");
++                                difference = newEncumbranceBalance.subtract(existingEncumbranceBalance);
++                                debitCreditCode = KFSConstants.GL_DEBIT_CODE;
++                                jobData.increasedBalanceCount++;
++                            }
++                            // copy fields per requirements
++                            adjustEncumbranceOriginEntryLine(encumbranceEntryLine, difference, debitCreditCode, currentDate);
++                            // write the line to the output file
++                            outputStream.println( encumbranceEntryLine.getLine() );
++                            if ( LOG.isDebugEnabled() ) {
++                                LOG.debug( "Writing line to output stream:\n" + encumbranceEntryLine.getLine() );
++                            }
++                            jobData.outputCount++;                            
++                        }
++                        // advance both iterators
++                        advanceBalanceFile = true;
++                        advanceEncumbranceFile = true;
++                    } else if (compareResult < 0) { // if the encumbrance line is less than the balance line,
++                        LOG.debug("Encr < Bal Keys: Create new encumbrance for encumbrance line");
++                        // then the encumbrance line does not have a match
++                        // add a new line for the full amount
++                        adjustEncumbranceOriginEntryLine(encumbranceEntryLine,encumbranceEntryLine.getTransactionLedgerEntryAmount(),KFSConstants.GL_DEBIT_CODE,currentDate);
++                        outputStream.println( encumbranceEntryLine.getLine() );
++                        jobData.outputCount++;        
++                        jobData.newBalanceCount++;
++                        // and advance the encumbrance line iterator
++                        advanceEncumbranceFile = true;
++                    } else { // if the encumbrance line is greater than the balance line,
++                        LOG.debug("Encr > Bal Keys: Reverse balance line");
++                        // then the balance line does not have a match
++                        // add a line to reverse the entire balance
++                        // create a new origin entry instance, based on the balance line
++                        LaborOriginEntry reversingOriginEntry = createOriginEntryToReverseBalanceEntry( balanceLine, lastOriginEntry, currentDate, lMap );
++                        outputStream.println( reversingOriginEntry.getLine() );
++                        jobData.outputCount++;        
++                        jobData.removedBalanceCount++;
++                        // and advance the balance line iterator
++                        advanceBalanceFile = true;
++                    }
++                }
++                // depending on comparison, increment the appropriate counters
++                if (advanceEncumbranceFile) {
++                    jobData.inputLinesProcessed++;
++                    // move to the next line
++                    encumbranceLine = inputReader.readLine();
++                    lineNumber++;
++                }
++                if (advanceBalanceFile) {
++                    jobData.balanceLinesProcessed++;
++                    balanceLine = balanceReader.readLine();
++                }
++            }
++
++        }
++        catch (FileNotFoundException ex) {
++            LOG.warn("Missing Input file:" + ex.getMessage(), ex);
++            return false;
++        }
++        catch (IOException ex) {
++            LOG.warn("Problem reading input files:" + ex.getMessage(), ex);
++            throw new RuntimeException("Error processing encumbrance balance file", ex);
++        }
++        finally {
++            if (inputReader != null) {
++                try {
++                    inputReader.close();
++                }
++                catch (IOException ex) {
++                }
++            }
++            if (balanceReader != null) {
++                try {
++                    balanceReader.close();
++                }
++                catch (IOException ex) {
++                }
++            }
++            if (outputStream != null) {
++                outputStream.close();
++            }
++            if ( reportWriterService != null ) {
++                ((WrappingBatchService)reportWriterService).initialize();
++                reportWriterService.writeStatisticLine("HCM File Input Lines      %,20d", jobData.inputLinesProcessed);
++                reportWriterService.writeStatisticLine("Balance File Lines        %,20d", jobData.balanceLinesProcessed);
++                reportWriterService.writeStatisticLine("Output Lines              %,20d", jobData.outputCount);
++                reportWriterService.writeStatisticLine("Input Line Errors         %,20d", jobData.errorCount);
++                reportWriterService.writeNewLines(2);
++                reportWriterService.writeStatisticLine("New Encumbrance Balances  %,20d", jobData.newBalanceCount);
++                reportWriterService.writeStatisticLine("Increased Balances        %,20d", jobData.increasedBalanceCount);
++                reportWriterService.writeStatisticLine("Decreased Balances        %,20d", jobData.decreasedBalanceCount);
++                reportWriterService.writeStatisticLine("Removed Balances          %,20d", jobData.removedBalanceCount);
++                reportWriterService.writeStatisticLine("Matching Balances         %,20d", jobData.matchingBalanceCount);
++                if ( !jobData.errorMessages.isEmpty() ) {
++                    for ( String errorMessage : jobData.errorMessages ) {
++                        reportWriterService.writeErrorLine( errorMessage );
++                    }
++                }
++                ((WrappingBatchService)reportWriterService).destroy();
++            }
++        }
++        return true;
++    }
++
++    /**
++     * Converts an origin entry line from the HCM system and sets or clears fields as needed.
++     * 
++     * @param originEntry The "template" origin entry to modify.
++     * @param amount Amount of the transaction.
++     * @param debitCreditCode 
++     * @param currentDate Transaction date of the entry.
++     */
++    protected void adjustEncumbranceOriginEntryLine( LaborOriginEntry originEntry, KualiDecimal amount, String debitCreditCode, Date currentDate ) {
++        // set the amount
++        originEntry.setTransactionLedgerEntryAmount(amount);
++        originEntry.setTransactionDebitCreditCode(debitCreditCode);
++        // set document type and other fields per the spec
++        originEntry.setFinancialDocumentTypeCode(LABOR_PERSONNEL_ENCUMBRANCE_DOC_TYPE);
++        originEntry.setFinancialSystemOriginationCode(LABOR_UACCESS_ORIGIN_CODE);
++        originEntry.setTransactionPostingDate( currentDate );
++        // ensure a number of other fields are blank per the spec
++        originEntry.setOrganizationDocumentNumber("");
++        originEntry.setOrganizationReferenceId("");
++        originEntry.setReferenceFinancialDocumentTypeCode("");
++        originEntry.setReferenceFinancialDocumentNumber("");
++        originEntry.setReferenceFinancialSystemOriginationCode("");
++        originEntry.setReversalDate(null);
++        originEntry.setTransactionEncumbranceUpdateCode("");
++        originEntry.setPayPeriodEndDate(null);
++        originEntry.setTransactionTotalHours(null);
++        originEntry.setPayrollEndDateFiscalPeriodCode("");
++        originEntry.setPayrollEndDateFiscalYear(null);
++        originEntry.setEarnCode("");
++        originEntry.setPayGroup("");
++        originEntry.setSalaryAdministrationPlan("");
++        originEntry.setGrade("");
++        originEntry.setRunIdentifier("");
++        originEntry.setLaborLedgerOriginalChartOfAccountsCode("");
++        originEntry.setLaborLedgerOriginalAccountNumber("");
++        originEntry.setLaborLedgerOriginalFinancialSubObjectCode("");
++        originEntry.setLaborLedgerOriginalFinancialObjectCode("");
++        originEntry.setLaborLedgerOriginalSubAccountNumber("");
++    }
++    
++    /**
++     * Takes a template origin entry (not modified) and merges with the key information in the given balance line.
++     */
++    protected LaborOriginEntry createOriginEntryToReverseBalanceEntry( String balanceLine, LaborOriginEntry lastOriginEntry, Date currentDate, Map<String, Integer> fieldLengthMap ) {
++        LaborOriginEntry originEntry = new LaborOriginEntry(lastOriginEntry); // makes a copy
++        // parse the file for FAU attribs and amount
++        if ( LOG.isDebugEnabled() ) {
++            LOG.debug( "Parsing balance line to make origin entry:\n" + balanceLine);
++        }
++        int startPos = 0;
++        int fieldLen = fieldLengthMap.get(KFSPropertyConstants.EMPLID);
++        originEntry.setEmplid( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.POSITION_NUMBER);
++        originEntry.setPositionNumber( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE);
++        originEntry.setChartOfAccountsCode( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.ACCOUNT_NUMBER);
++        originEntry.setAccountNumber( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER);
++        originEntry.setSubAccountNumber( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE);
++        originEntry.setFinancialObjectTypeCode( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE);
++        originEntry.setFinancialObjectCode( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE);
++        originEntry.setFinancialSubObjectCode( balanceLine.substring(startPos,startPos+fieldLen).trim());
++
++        startPos += fieldLen;
++        fieldLen = fieldLengthMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT) + 1;
++        try {
++            KualiDecimal amount = new KualiDecimal(balanceLine.substring(startPos,startPos+fieldLen).trim());
++    
++            // blank out the employee record number
++            originEntry.setEmployeeRecord(null);
++            // blank out the project code
++            originEntry.setProjectCode(KFSConstants.getDashProjectCode());
++            // null out the sequence number, we don't have a source
++            originEntry.setTransactionLedgerEntrySequenceNumber(null);
++            
++            adjustEncumbranceOriginEntryLine(originEntry, amount, amount.isPositive()?KFSConstants.GL_CREDIT_CODE:KFSConstants.GL_DEBIT_CODE, currentDate);
++        } catch ( NumberFormatException ex ) {
++            LOG.error("Unable to get amount from expense line.  Amount String: '" + balanceLine.substring(startPos,startPos+fieldLen) + "'");
++            throw new RuntimeException( "Unable to get amount from expense line.  Amount String: '" + balanceLine.substring(startPos,startPos+fieldLen).trim() + "'", ex );
++        }        
++        return originEntry;
++    }
++
++    /**
++     * Special comparator for labor origin entry records and the encumbrance balance file.
++     * It compares the keys in the balance file with the appropriate attributes of the origin entry. 
++     */
++    protected static class LaborOriginEntryToBalanceRecordComparator {
++        protected LaborOriginEntryFieldUtil loefu = new LaborOriginEntryFieldUtil();
++        protected Map<String, Integer> lMap = loefu.getFieldLengthMap();
++
++        // Decode all of these up front to avoid the decoding of the information on
++        // *every* comparison, which could happen quite a number of times
++        protected int EMPLID_LEN = lMap.get(KFSPropertyConstants.EMPLID);
++        protected int POSITION_NUMBER_LEN = lMap.get(KFSPropertyConstants.POSITION_NUMBER);
++        protected int CHART_OF_ACCOUNTS_CODE_LEN = lMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE);
++        protected int ACCOUNT_NUMBER_LEN = lMap.get(KFSPropertyConstants.ACCOUNT_NUMBER);
++        protected int SUB_ACCOUNT_NUMBER_LEN = lMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER);
++        protected int FINANCIAL_OBJECT_TYPE_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE);
++        protected int FINANCIAL_OBJECT_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE);
++        protected int FINANCIAL_SUB_OBJECT_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE);
++
++        protected int TOTAL_KEY_LEN = EMPLID_LEN + POSITION_NUMBER_LEN + CHART_OF_ACCOUNTS_CODE_LEN + ACCOUNT_NUMBER_LEN + SUB_ACCOUNT_NUMBER_LEN + FINANCIAL_OBJECT_TYPE_CODE_LEN + FINANCIAL_OBJECT_CODE_LEN + FINANCIAL_SUB_OBJECT_CODE_LEN;
++
++        protected int BALANCE_AMOUNT_POS = TOTAL_KEY_LEN;
++        protected int BALANCE_AMOUNT_LEN = lMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT) + 1; // account for the
++                                                                                                               // plus/minus
++
++        // set up the needed string buffer for use by this sort
++        protected StringBuffer sb = new StringBuffer(TOTAL_KEY_LEN);
++
++        public int compare(LaborOriginEntry originEntry, String balanceRecord) {
++            // build string from origin entry record (include padding)
++            sb.setLength(0);
++            sb.append(StringUtils.rightPad(originEntry.getEmplid(), EMPLID_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getPositionNumber(), POSITION_NUMBER_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getChartOfAccountsCode(), CHART_OF_ACCOUNTS_CODE_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getAccountNumber(), ACCOUNT_NUMBER_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getSubAccountNumber(), SUB_ACCOUNT_NUMBER_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getFinancialObjectTypeCode(), FINANCIAL_OBJECT_TYPE_CODE_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getFinancialObjectCode(), FINANCIAL_OBJECT_CODE_LEN, ' '));
++            sb.append(StringUtils.rightPad(originEntry.getFinancialSubObjectCode(), FINANCIAL_SUB_OBJECT_CODE_LEN, ' '));
++            String originEntryKeyString = sb.toString();
++
++            // pull substring from balance record
++            String balanceRecordKeyString = StringUtils.substring(balanceRecord, 0, TOTAL_KEY_LEN);
++            if ( LOG.isDebugEnabled() ) {
++                LOG.debug("Comparing Strings: \nENC: " + originEntryKeyString + "\nBAL: " + balanceRecordKeyString);
++            }
++            // compare strings
++            return originEntryKeyString.compareTo(balanceRecordKeyString);
++        }
++    }
++
++    protected LaborEncumbranceAdjustmentDao getLaborEncumbranceAdjustmentDao() {
++        return laborEncumbranceAdjustmentDao;
++    }
++
++    public void setLaborEncumbranceAdjustmentDao(LaborEncumbranceAdjustmentDao laborEncumbranceAdjustmentDao) {
++        this.laborEncumbranceAdjustmentDao = laborEncumbranceAdjustmentDao;
++    }
++
++    public DateTimeService getDateTimeService() {
++        return dateTimeService;
++    }
++
++    public void setDateTimeService(DateTimeService dateTimeService) {
++        this.dateTimeService = dateTimeService;
++    }
++
++    public LaborEncumbranceReportWriterService getReportWriterService() {
++        return reportWriterService;
++    }
++
++    public void setReportWriterService(LaborEncumbranceReportWriterService reportWriterService) {
++        this.reportWriterService = reportWriterService;
++    }
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java	(revision 9307)
+@@ -0,0 +1,35 @@
++package edu.arizona.kfs.module.ld.batch.service;
++
++import java.io.File;
++
++public interface LaborEncumbranceAdjustmentService {
++
++    static final String LABOR_PERSONNEL_ENCUMBRANCE_DOC_TYPE = "LLPE";
++    static final String LABOR_UACCESS_ORIGIN_CODE = "UE";
++    
++    static final String ENCUMBRANCE_BALANCE_FILE = "ld_encumb_bal_tmp";
++    static final String ENCUMBRANCE_INPUT_FILE = "ld_encumb_in";
++    static final String SORTED_ENCUMBRANCE_INPUT_FILE = "ld_encumb_sort_out";
++    static final String ENCUMBRANCE_OUTPUT_FILE = "ld_encumb_out";
++    static final String ENCUMBRANCE_ERROR_FILE = "ld_encumb_err";
++    static final String NIGHTLY_OUT_BACKUP = "ld_encumb_labentry_kfs_backup";
++    
++    /**
++     * Builds a sorted text version of the balance table (IE encumbrances only) for use by
++     * the encumbrance balance file comparison.
++     * 
++     * @author jonathan
++     */
++    boolean buildBalanceFile( Integer fiscalYear, File outputFile );
++    
++    /**
++     * Outputs an origin entry file with the needed transactions to adjust the
++     * existing balances in the balance table to the values from the input file.
++     * 
++     * Note: The input and balance files *MUST* be sorted identically.  They are
++     * walked over in order to detect additions/removals.
++     * 
++     * @author jonathan
++     */
++    boolean buildEncumbranceDifferenceFile( File inputFile, File balanceFile, File outputFile, File errorFile );
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 9307)
+@@ -0,0 +1,72 @@
++package edu.arizona.kfs.module.ld.batch;
++
++import java.util.Comparator;
++import java.util.Map;
++
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++
++/**
++ * Special sort comparator used for sorting the input origin entry file.  It sorts by the same
++ * keys as the generated balance file. 
++ */
++public class LaborEncumbranceBalanceOriginEntrySortComparator implements Comparator<String> {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceBalanceOriginEntrySortComparator.class);
++    
++    protected LaborOriginEntryFieldUtil loefu = new LaborOriginEntryFieldUtil();
++    protected Map<String, Integer> pMap = loefu.getFieldBeginningPositionMap();
++    protected Map<String, Integer> lMap = loefu.getFieldLengthMap();
++    
++    // Decode all of these up front to avoid the decoding of the information on
++    // *every* comparison, which could happen quite a number of times
++    protected int EMPLID_POS = pMap.get(KFSPropertyConstants.EMPLID);
++    protected int EMPLID_LEN = lMap.get(KFSPropertyConstants.EMPLID);
++    protected int POSITION_NUMBER_POS = pMap.get(KFSPropertyConstants.POSITION_NUMBER);
++    protected int POSITION_NUMBER_LEN = lMap.get(KFSPropertyConstants.POSITION_NUMBER);
++    protected int CHART_OF_ACCOUNTS_CODE_POS = pMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE);
++    protected int CHART_OF_ACCOUNTS_CODE_LEN = lMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE);
++    protected int ACCOUNT_NUMBER_POS = pMap.get(KFSPropertyConstants.ACCOUNT_NUMBER);
++    protected int ACCOUNT_NUMBER_LEN = lMap.get(KFSPropertyConstants.ACCOUNT_NUMBER);
++    protected int SUB_ACCOUNT_NUMBER_POS = pMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER);
++    protected int SUB_ACCOUNT_NUMBER_LEN = lMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER);
++    protected int FINANCIAL_OBJECT_TYPE_CODE_POS = pMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE);
++    protected int FINANCIAL_OBJECT_TYPE_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE);
++    protected int FINANCIAL_OBJECT_CODE_POS = pMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE);
++    protected int FINANCIAL_OBJECT_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE);
++    protected int FINANCIAL_SUB_OBJECT_CODE_POS = pMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE);
++    protected int FINANCIAL_SUB_OBJECT_CODE_LEN = lMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE);
++
++    // set up the needed string buffer for use by this sort
++    protected StringBuffer sb = new StringBuffer(EMPLID_LEN+POSITION_NUMBER_LEN+CHART_OF_ACCOUNTS_CODE_LEN
++                    +ACCOUNT_NUMBER_LEN+SUB_ACCOUNT_NUMBER_LEN+FINANCIAL_OBJECT_TYPE_CODE_LEN
++                    +FINANCIAL_OBJECT_CODE_LEN+FINANCIAL_SUB_OBJECT_CODE_LEN);
++    
++    public int compare(String originEntryLine1, String originEntryLine2) {
++        sb.setLength(0); // clear out the string buffer for the next use
++        
++//        System.out.println( "Entry Line: " + originEntryLine1);
++        
++        sb.append(originEntryLine1.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++        sb.append(originEntryLine1.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
++        sb.append(originEntryLine1.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
++        sb.append(originEntryLine1.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
++        sb.append(originEntryLine1.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
++        sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
++        sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
++        sb.append(originEntryLine1.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++        originEntryLine1 = sb.toString();
++
++        sb.setLength(0); // clear out the string buffer for the next use
++        sb.append(originEntryLine2.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++        sb.append(originEntryLine2.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
++        sb.append(originEntryLine2.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
++        sb.append(originEntryLine2.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
++        sb.append(originEntryLine2.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
++        sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
++        sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
++        sb.append(originEntryLine2.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++        originEntryLine2 = sb.toString();
++            
++        return originEntryLine1.compareTo(originEntryLine2);
++    }
++}
+\ No newline at end of file
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java	(revision 9307)
+@@ -0,0 +1,79 @@
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.File;
++import java.io.IOException;
++import java.util.Date;
++
++import org.apache.commons.io.FileUtils;
++import org.apache.commons.io.LineIterator;
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
++import org.kuali.kfs.sys.batch.AbstractStep;
++import org.springframework.util.StopWatch;
++
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++public class LaborBuildEncumbranceBalanceFileStep extends AbstractStep {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborBuildEncumbranceBalanceFileStep.class);
++
++    protected String batchFileDirectoryName;
++    protected LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService;
++    
++    
++    public boolean execute(String jobName, Date jobRunDate) {
++        StopWatch stopWatch = null;
++        if ( LOG.isDebugEnabled() ) {
++            stopWatch = new StopWatch();
++            stopWatch.start();
++        }
++
++        File inputFile = new File( batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++        if ( inputFile.exists() ) {
++            File outputFile = new File( batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION );
++            Integer fiscalYear = null;
++            
++            // get fiscal year from data file
++            // this assumes that there is only one fiscal year per file
++            LineIterator inputEntries = null;
++            try {
++                inputEntries = FileUtils.lineIterator(inputFile);
++                if ( inputEntries.hasNext() ) {
++                    String firstLine = inputEntries.nextLine();
++                    LaborOriginEntry oe = new LaborOriginEntry(firstLine); 
++                    fiscalYear = oe.getUniversityFiscalYear();
++                }
++            } catch (IOException ex) {
++                LOG.error("Error encountered trying to read first line of labor encumbrance file", ex);
++                throw new RuntimeException("Error encountered trying to read first line of labor encumbrance file", ex);
++            } finally {
++                LineIterator.closeQuietly(inputEntries);
++            }    
++            // only build the file if the FY was non-null - otherwise there was no file
++            // or a problem with the file - later steps will catch the problem
++            if ( fiscalYear != null ) {
++                getLaborEncumbranceAdjustmentService().buildBalanceFile(fiscalYear, outputFile);
++            }
++        }                    
++        if (LOG.isDebugEnabled()) {
++            stopWatch.stop();
++            LOG.debug(getClass().getName() + " took " + (stopWatch.getTotalTimeSeconds() / 60.0) + " minutes to complete");
++        }
++        return true;
++    }
++
++    public void setBatchFileDirectoryName(String batchFileDirectoryName) {
++        this.batchFileDirectoryName = batchFileDirectoryName;
++    }
++
++    protected LaborEncumbranceAdjustmentService getLaborEncumbranceAdjustmentService() {
++        return laborEncumbranceAdjustmentService;
++    }
++
++    public void setLaborEncumbranceAdjustmentService(LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService) {
++        this.laborEncumbranceAdjustmentService = laborEncumbranceAdjustmentService;
++    }
++
++    public String getBatchFileDirectoryName() {
++        return batchFileDirectoryName;
++    }
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java	(revision 9307)
+@@ -0,0 +1,90 @@
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.File;
++import java.text.SimpleDateFormat;
++import java.util.Date;
++
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.gl.batch.BatchSortUtil;
++import org.kuali.kfs.sys.batch.AbstractStep;
++import org.springframework.util.StopWatch;
++
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++/**
++ * Sorts the incoming encumbrance balance file from HCM.
++ * 
++ * @author jonathan
++ */
++public class LaborSortEncumbranceFileStep extends AbstractStep {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborSortEncumbranceFileStep.class);
++    protected String batchFileDirectoryName;
++    protected String processedBatchFileDirectoryName;
++
++    protected SimpleDateFormat completeFileTimestampFormat = new SimpleDateFormat( "yyyyMMdd_HHmmss" );
++    
++    /**
++     * Sorts the incoming encumbrance balance file from HCM.
++     * 
++     * @param jobName the name of the job this step is being run as part of
++     * @param jobRunDate the time/date the job was started
++     * @return true if the job completed successfully, false if otherwise
++     * @see org.kuali.kfs.sys.batch.Step#execute(java.lang.String)
++     */
++    public boolean execute(String jobName, Date jobRunDate) {
++        StopWatch stopWatch = null;
++        boolean succeeded = true;
++        if (LOG.isDebugEnabled()) {
++            stopWatch = new StopWatch();
++            stopWatch.start(jobName);
++        }
++        File processedDirectory = new File( processedBatchFileDirectoryName );
++        if ( !processedDirectory.exists() ) {
++            processedDirectory.mkdir();
++        }
++        String inputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File inputFile = new File( inputFileName );
++        // get the done file
++        String doneFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION;
++        File doneFile = new File( doneFileName );
++        String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File outputFile = new File( outputFileName );
++        if ( inputFile.exists() && doneFile.exists() ) {
++            if ( LOG.isDebugEnabled() ) {
++                LOG.debug( "Sorting: \n   " + inputFileName + "\nto\n   " + outputFileName);
++            }
++            BatchSortUtil.sortTextFileWithFields(inputFileName, outputFileName, new LaborEncumbranceBalanceOriginEntrySortComparator());
++            inputFile.renameTo(new File( processedDirectory, LaborEncumbranceAdjustmentService.ENCUMBRANCE_INPUT_FILE + completeFileTimestampFormat.format(new Date()) + GeneralLedgerConstants.BatchFileSystem.EXTENSION ) );
++            doneFile.delete();
++        } else {
++            if ( inputFile.exists() && !doneFile.exists() ) {
++                LOG.warn( "Done file for " + inputFileName + " not present - assuming file is not ready." );
++            } else {
++                LOG.warn( "Unable to find " + inputFileName + ", sorting skipped.  No output file created." );
++            }
++            succeeded = false;
++        }
++        if (LOG.isDebugEnabled()) {
++            stopWatch.stop();
++            LOG.debug(this.getClass().getName() + " of " + jobName + " took " + (stopWatch.getTotalTimeSeconds() / 60.0) + " minutes to complete");
++        }
++        return succeeded;
++    }
++   
++    public void setBatchFileDirectoryName(String batchFileDirectoryName) {
++        this.batchFileDirectoryName = batchFileDirectoryName;
++    }
++
++    public String getBatchFileDirectoryName() {
++        return batchFileDirectoryName;
++    }
++
++    public String getProcessedBatchFileDirectoryName() {
++        return processedBatchFileDirectoryName;
++    }
++
++    public void setProcessedBatchFileDirectoryName(String processedBatchFileDirectoryName) {
++        this.processedBatchFileDirectoryName = processedBatchFileDirectoryName;
++    }
++
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 9307)
+@@ -0,0 +1,142 @@
++package edu.arizona.kfs.module.ld.batch.dataaccess.impl;
++
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.IOException;
++import java.io.PrintStream;
++import java.math.BigDecimal;
++import java.sql.PreparedStatement;
++import java.sql.ResultSet;
++import java.sql.SQLException;
++import java.util.Map;
++
++import org.apache.commons.lang.StringUtils;
++import org.kuali.kfs.module.ld.LaborConstants;
++import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.kfs.sys.context.SpringContext;
++import org.kuali.kfs.sys.service.OptionsService;
++import org.kuali.rice.kns.dao.jdbc.PlatformAwareDaoBaseJdbc;
++
++import edu.arizona.kfs.module.ld.batch.dataaccess.LaborEncumbranceAdjustmentDao;
++
++public class LaborEncumbranceAdjustmentDaoJdbc extends PlatformAwareDaoBaseJdbc implements LaborEncumbranceAdjustmentDao {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborEncumbranceAdjustmentDaoJdbc.class);
++
++    protected String additionalWhereClause = "";
++    
++    protected String ENCUMBRANCE_BALANCE_SQL = 
++            "select l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.fin_obj_typ_cd, " +
++            "l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD, SUM(l.ACLN_ANNL_BAL_AMT) AS encumbrance_balance\n" + 
++    		"    from LD_LDGR_BAL_T l, ld_labor_obj_t lo\n" + 
++    		"    WHERE l.UNIV_FISCAL_YR = ?\n" + 
++    		"      AND l.FIN_BALANCE_TYP_CD = ?\n" +
++    		"      AND lo.univ_fiscal_yr = l.UNIV_FISCAL_YR\n" + 
++    		"      AND lo.FIN_COA_CD = l.FIN_COA_CD\n" + 
++    		"      AND lo.FIN_OBJECT_CD = l.FIN_OBJECT_CD\n" + 
++    		"      AND lo.FINOBJ_FRNGSLRY_CD = '" + LaborConstants.LABOR_OBJECT_SALARY_CODE + "'"; 
++    protected String ENCUMBRANCE_BALANCE_SQL2 = 
++    		"    GROUP BY l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
++    		"    HAVING SUM(l.ACLN_ANNL_BAL_AMT) != 0\n" +
++    		"    ORDER BY EMPLID, position_nbr, fin_coa_cd, account_nbr, sub_acct_nbr, fin_obj_typ_cd," +
++            "             FIN_OBJECT_CD, FIN_SUB_OBJ_CD"; 
++    
++    public int buildFileForEncumbranceBalances( Integer fiscalYear, File fileName ) {
++        // get the connection and use resultsets directly
++        PreparedStatement stmt = null;
++        ResultSet rs = null;        
++        PrintStream outputStream = null;
++        int outputLines = 0;
++        StringBuilder sb = new StringBuilder();
++        Map<String, Integer> lMap = new LaborOriginEntryFieldUtil().getFieldLengthMap();
++        // this is a generated tmp file, so if one exists, remove it
++        if ( fileName.exists() ) {
++            fileName.delete();
++        }
++        // get the fiscal year's internal encumbrance value
++        String internalEncumbranceBalanceTypeCode = SpringContext.getBean(OptionsService.class).getOptions(fiscalYear).getIntrnlEncumFinBalanceTypCd();
++        try {
++            // create an empty file, so that if no records are found, a file is still created (makes later processing easier)
++            fileName.createNewFile();
++            try {
++                stmt = getConnection().prepareStatement(ENCUMBRANCE_BALANCE_SQL+additionalWhereClause+ENCUMBRANCE_BALANCE_SQL2);
++                stmt.setInt(1, fiscalYear);
++                stmt.setString(2, internalEncumbranceBalanceTypeCode);
++                rs = stmt.executeQuery();
++            } catch ( SQLException ex ) {
++                LOG.error("Unable to create and execute statement to retrieve labor encumbrance balances", ex);
++                throw new RuntimeException("Unable to create and execute statement to retrieve labor encumbrance balances", ex);
++            }
++            if ( LOG.isInfoEnabled() ) {
++                LOG.info ( "Opening " + fileName.getAbsolutePath() + " for output of balance records.");
++                if ( !StringUtils.isBlank(additionalWhereClause) ) {
++                    LOG.info( "Additional WHERE clause in use: " + additionalWhereClause );
++                }
++            }
++            outputStream = new PrintStream(fileName);
++            try {
++                StringBuffer lineBuffer = new StringBuffer( 100 );
++                while ( rs.next() ) {
++                    lineBuffer.setLength(0); // reset the existing string buffer
++                    // write data to outputStream
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(1), lMap.get(KFSPropertyConstants.EMPLID), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(2), lMap.get(KFSPropertyConstants.POSITION_NUMBER), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(3), lMap.get(KFSPropertyConstants.CHART_OF_ACCOUNTS_CODE), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(4), lMap.get(KFSPropertyConstants.ACCOUNT_NUMBER), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(5), lMap.get(KFSPropertyConstants.SUB_ACCOUNT_NUMBER), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(6), lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_TYPE_CODE), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(7), lMap.get(KFSPropertyConstants.FINANCIAL_OBJECT_CODE), ' ') );
++                    lineBuffer.append( StringUtils.rightPad(rs.getString(8), lMap.get(KFSPropertyConstants.FINANCIAL_SUB_OBJECT_CODE), ' ') );
++                    BigDecimal bal = rs.getBigDecimal(9);
++                    lineBuffer.append((bal.signum() == -1)?'-':'+');
++                    lineBuffer.append( StringUtils.rightPad(bal.abs().toString(), lMap.get(KFSPropertyConstants.TRANSACTION_LEDGER_ENTRY_AMOUNT), ' ') );
++                    outputStream.println(lineBuffer.toString());
++                    outputLines++;
++                }
++                if ( LOG.isInfoEnabled() ) {
++                    LOG.info( outputLines + " records written to output file." );
++                }
++            } catch ( SQLException ex ) {
++                LOG.error("Unable to iterate over encumbrance balance records", ex);
++                throw new RuntimeException("Unable to iterate over encumbrance balance records", ex);
++            }
++        } catch ( FileNotFoundException ex ) {
++            LOG.error("Unable to open output file for writing: " + fileName.getAbsolutePath(),ex);
++            throw new RuntimeException("Unable to open output file for writing: " + fileName.getAbsolutePath(),ex);
++        }
++        catch (IOException ex) {
++            LOG.error("Unable to create output file for balance records: " + fileName.getAbsolutePath(),ex);
++            throw new RuntimeException("Unable to create output file for balance records: " + fileName.getAbsolutePath(),ex);
++        } finally {
++            if ( outputStream != null ) {
++                outputStream.close();
++            }
++            try {
++                if ( rs != null ) {
++                    rs.close();
++                }
++                if ( stmt != null ) {
++                    stmt.close();
++                }
++            } catch ( SQLException ex ) {
++                LOG.warn( "Unable to close result set or statement upon exit of buildFileForEncumbranceBalances", ex );
++            }
++        }
++        return outputLines;
++    }
++
++    public String getAdditionalWhereClause() {
++        return additionalWhereClause;
++    }
++
++    /**
++     * This is used for testing to blank out the file.
++     */
++    public void setAdditionalWhereClause(String additionalWhereClause) {
++        if ( additionalWhereClause == null ) {
++            this.additionalWhereClause = "";
++        } else {
++            this.additionalWhereClause = additionalWhereClause;
++        }
++    }
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java	(revision 9307)
+@@ -0,0 +1,9 @@
++package edu.arizona.kfs.module.ld.batch.dataaccess;
++
++import java.io.File;
++
++public interface LaborEncumbranceAdjustmentDao {
++
++    
++    int buildFileForEncumbranceBalances( Integer fiscalYear, File fileName );
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java	(revision 9307)
+@@ -0,0 +1,35 @@
++/*
++ * Copyright 2010 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.arizona.kfs.module.ld.batch.report;
++
++import java.util.ArrayList;
++import java.util.LinkedList;
++import java.util.List;
++
++public class LaborEncumbranceJobReportData {
++
++    public int errorCount = 0;
++    public int inputLinesProcessed = 0;
++    public int balanceLinesProcessed = 0;
++    public int newBalanceCount = 0;
++    public int removedBalanceCount = 0;
++    public int increasedBalanceCount = 0;
++    public int decreasedBalanceCount = 0;
++    public int matchingBalanceCount = 0;
++    public int outputCount = 0;
++    
++    public LinkedList<String> errorMessages = new LinkedList<String>();    
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java	(revision 9307)
+@@ -0,0 +1,48 @@
++/*
++ * Copyright 2010 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.arizona.kfs.module.ld.batch.report;
++
++import org.kuali.kfs.sys.service.impl.ReportWriterTextServiceImpl;
++
++public class LaborEncumbranceReportWriterService extends ReportWriterTextServiceImpl {
++
++    protected boolean modeError = false; 
++    
++    public void writeErrorLine(String message) {
++        // header is only written if it hasn't been written before
++        if (!modeError) {
++            modeError = true;
++
++            // If nothing has been written to the report we don't want to page break
++            if (!(page == initialPageNumber && line == INITIAL_LINE_NUMBER + 2)) {
++                pageBreak();
++            }
++
++            writeFormattedMessageLine("*********************************************************************************************************************************");
++            writeFormattedMessageLine("*********************************************************************************************************************************");
++            writeFormattedMessageLine("*******************" + " E R R O R   M E S S A G E S " + "*******************");
++            writeFormattedMessageLine("*********************************************************************************************************************************");
++            writeFormattedMessageLine("*********************************************************************************************************************************");
++        }
++
++        // these sometimes have linefeeds in them, split so as to not mess up the line count
++        for ( String line : message.split("\n") ) {
++            writeFormattedMessageLine(line);
++        }
++        writeNewLines(1); // separator
++    }
++    
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java	(revision 9307)
+@@ -0,0 +1,59 @@
++package edu.arizona.kfs.module.ld.batch;
++
++import java.io.File;
++import java.util.Date;
++
++import org.kuali.kfs.gl.GeneralLedgerConstants;
++import org.kuali.kfs.sys.batch.AbstractStep;
++import org.springframework.util.StopWatch;
++
++import edu.arizona.kfs.module.ld.batch.service.LaborEncumbranceAdjustmentService;
++
++public class LaborCalculateEncumbranceAdjustmentsStep extends AbstractStep {
++    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LaborCalculateEncumbranceAdjustmentsStep.class);
++
++    protected String batchFileDirectoryName;
++    protected LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService;
++
++    public boolean execute(String jobName, Date jobRunDate) {
++        StopWatch stopWatch = null;
++        if ( LOG.isDebugEnabled() ) {
++            stopWatch = new StopWatch();
++            stopWatch.start();
++        }
++
++        String inputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.SORTED_ENCUMBRANCE_INPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File inputFile = new File( inputFileName );
++        String balanceFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_BALANCE_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++        File balanceFile = new File( balanceFileName );
++        if ( inputFile.exists() && balanceFile.exists() ) {
++            String outputFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_OUTPUT_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            File outputFile = new File( outputFileName );
++            String errorFileName = batchFileDirectoryName + File.separator + LaborEncumbranceAdjustmentService.ENCUMBRANCE_ERROR_FILE + GeneralLedgerConstants.BatchFileSystem.EXTENSION;
++            File errorFile = new File( errorFileName );
++            
++            getLaborEncumbranceAdjustmentService().buildEncumbranceDifferenceFile(inputFile,balanceFile,outputFile,errorFile);
++            
++            // delete the input files
++            inputFile.delete();
++            balanceFile.delete();
++        }                    
++        if (LOG.isDebugEnabled()) {
++            stopWatch.stop();
++            LOG.debug(getClass().getName()+" step of " + jobName + " took " + (stopWatch.getTotalTimeSeconds() / 60.0) + " minutes to complete");
++        }
++        return true;
++    }
++
++    public void setBatchFileDirectoryName(String batchFileDirectoryName) {
++        this.batchFileDirectoryName = batchFileDirectoryName;
++    }
++
++    protected LaborEncumbranceAdjustmentService getLaborEncumbranceAdjustmentService() {
++        return laborEncumbranceAdjustmentService;
++    }
++
++    public void setLaborEncumbranceAdjustmentService(LaborEncumbranceAdjustmentService laborEncumbranceAdjustmentService) {
++        this.laborEncumbranceAdjustmentService = laborEncumbranceAdjustmentService;
++    }
++}
+
+Property changes on: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+___________________________________________________________________
+Added: svn:mime-type
+   + text/plain
+
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 9306)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml	(revision 9307)
+@@ -44,6 +44,8 @@
+      <list merge="true">
+     <value>calculateEreJob</value>
+     <value>ereSweepJob</value>
++	<!-- FP-INT0008-01 - added encumbrance balance adjustment job -->
++	<value>laborEncumbranceAdjustmentJob</value>
+    </list>
+   </property>
+  </bean>
+@@ -244,6 +246,85 @@
+   </property>
+  </bean>
+ 
++	<!-- FP-INT0008-01 - encumbrance balance adjustment job -->
++	<bean id="laborEncumbranceAdjustmentService" class="edu.arizona.kfs.module.ld.batch.service.impl.LaborEncumbranceAdjustmentServiceImpl">
++		<property name="laborEncumbranceAdjustmentDao" ref="laborEncumbranceAdjustmentDao" />
++		<property name="dateTimeService" ref="dateTimeService" />
++		<property name="reportWriterService" ref="laborEncumbranceAdjustmentReportWriterService" />
++	</bean>
++
++	<bean id="laborEncumbranceAdjustmentDao" 
++			class="edu.arizona.kfs.module.ld.batch.dataaccess.impl.LaborEncumbranceAdjustmentDaoJdbc"
++			parent="platformAwareDaoJdbc" />
++
++	<bean id="laborBuildEncumbranceBalanceFileStep" parent="step"
++		  class="edu.arizona.kfs.module.ld.batch.LaborBuildEncumbranceBalanceFileStep">
++		<property name="laborEncumbranceAdjustmentService" ref="laborEncumbranceAdjustmentService" />
++        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++	</bean>
++	
++	<bean id="laborSortEncumbranceFileStep" parent="step"
++			class="edu.arizona.kfs.module.ld.batch.LaborSortEncumbranceFileStep">
++        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++        <property name="processedBatchFileDirectoryName" value="${staging.directory}/ld/originEntry/complete"/>
++	</bean>
++
++	<bean id="laborCalculateEncumbranceAdjustmentsStep" parent="step"
++		  class="edu.arizona.kfs.module.ld.batch.LaborCalculateEncumbranceAdjustmentsStep">
++		<property name="laborEncumbranceAdjustmentService" ref="laborEncumbranceAdjustmentService" />
++        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++	</bean>
++
++	<bean id="laborAppendEncumbranceTransactionsStep" parent="step"
++			class="edu.arizona.kfs.module.ld.batch.LaborAppendEncumbranceTransactionsStep">
++        <property name="batchFileDirectoryName" value="${staging.directory}/ld/originEntry"/>
++	</bean>
++
++	<bean id="laborEncumbranceAdjustmentJob" parent="scheduledJobDescriptor">
++		<property name="steps">
++			<list>
++				<ref bean="laborSortEncumbranceFileStep" />
++				<ref bean="laborBuildEncumbranceBalanceFileStep" />
++				<ref bean="laborCalculateEncumbranceAdjustmentsStep" />
++				<ref bean="laborAppendEncumbranceTransactionsStep" />
++			</list>
++		</property>
++		<property name="dependencies">
++			<map>
++				<entry key="laborNightlyOutJob" value="hardDependency"/>
++			</map>
++		</property>
++	</bean>
++
++	<bean id="laborEncumbranceAdjustmentReportWriterService" parent="reportWriterService"
++			class="edu.arizona.kfs.module.ld.batch.report.LaborEncumbranceReportWriterService">
++		<property name="filePath" value="${reports.directory}/ld"/>
++		<property name="fileNamePrefix" value="llEncumbranceAdjustmentReport"/>
++        <property name="title" value="Labor Encumbrance Adjustment Results"/>
++    </bean>	
++	<!-- FP-INT0008-01 - END MOD -->
++	
++	<bean id="laborScrubberJob" parent="scheduledJobDescriptor">
++		<property name="steps">
++			<list>
++				<ref bean="createLaborBackupGroupStep"/>
++				<ref bean="laborPreScrubberStep"/>
++				<ref bean="laborScrubberSortStep"/>
++				<ref bean="laborScrubberStep"/>
++				<ref bean="laborDemergerSortStep" />
++				<ref bean="laborDemergerStep" />
++				<ref bean="aggregateLaborScrubberReportsStep"/>
++			</list>
++		</property>
++		<property name="dependencies">
++			<map>
++				<entry key="laborNightlyOutJob" value="hardDependency"/>
++				<!-- FP-INT0008-01 - added encumbrance balance adjustment job dependency -->
++				<entry key="laborEncumbranceAdjustmentJob" value="softDependency"/>
++			</map>
++		</property>
++	</bean>	
++
+  <!-- validations -->
+  <import
+   resource="document/validation/configuration/SalaryExpenseTransferValidations.xml" />

@@ -1,0 +1,20 @@
+Index: work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14694)
++++ work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 14695)
+@@ -223,11 +223,11 @@
+                         }
+                         reversingOriginEntry.setTransactionLedgerEntryDescription(newDescription);
+                         
+-                        // Update the end of the document number to "200000"
+-                        // save the first 8 characters (YYYYMMDD)
+-                        String newDocNum = StringUtils.left(reversingOriginEntry.getDocumentNumber(), 8);
++                        // Update the end of the document number to "00000"
++                        // save the first 9 characters (YYYYMMDD#)
++                        String newDocNum = StringUtils.left(reversingOriginEntry.getDocumentNumber(), 9);
+                         // append the new suffix
+-                        newDocNum += "200000";
++                        newDocNum += "00000";
+                         reversingOriginEntry.setDocumentNumber(newDocNum);
+                         
+                         outputStream.println( reversingOriginEntry.getLine() );

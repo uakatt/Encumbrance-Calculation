@@ -1,0 +1,28 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 11904)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 11905)
+@@ -11,6 +11,7 @@
+ import java.util.Map;
+ 
+ import org.apache.commons.lang.StringUtils;
++import org.kuali.kfs.gl.GeneralLedgerConstants;
+ import org.kuali.kfs.module.ld.businessobject.LaborOriginEntry;
+ import org.kuali.kfs.module.ld.businessobject.LaborOriginEntryFieldUtil;
+ import org.kuali.kfs.sys.KFSConstants;
+@@ -218,7 +219,14 @@
+                     balanceLine = balanceReader.readLine();
+                 }
+             }
+-
++            outputStream.flush();
++            try {
++                String doneFileName = StringUtils.removeEnd(outputFile.getAbsolutePath(), ".data") + GeneralLedgerConstants.BatchFileSystem.DONE_FILE_EXTENSION;
++                File doneFile = new File( doneFileName );
++                doneFile.createNewFile();
++            } catch ( Exception ex ) {
++                LOG.error( "Unable to create done file for labor encumbrance adjustment output file.", ex );
++            }
+         }
+         catch (FileNotFoundException ex) {
+             LOG.warn("Missing Input file:" + ex.getMessage(), ex);

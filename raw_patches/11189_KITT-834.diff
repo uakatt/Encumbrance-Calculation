@@ -1,0 +1,13 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 11188)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java	(revision 11189)
+@@ -36,7 +36,7 @@
+     		"      AND lo.FIN_OBJECT_CD = l.FIN_OBJECT_CD\n" + 
+     		"      AND lo.FINOBJ_FRNGSLRY_CD = '" + LaborConstants.LABOR_OBJECT_SALARY_CODE + "'"; 
+     protected String ENCUMBRANCE_BALANCE_SQL2 = 
+-    		"    GROUP BY l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
++    		"    GROUP BY l.EMPLID, l.position_nbr, l.fin_coa_cd, l.account_nbr, l.sub_acct_nbr, l.fin_obj_typ_cd, l.FIN_OBJECT_CD, l.FIN_SUB_OBJ_CD\n" + 
+     		"    HAVING SUM(l.ACLN_ANNL_BAL_AMT) != 0\n" +
+     		"    ORDER BY EMPLID, position_nbr, fin_coa_cd, account_nbr, sub_acct_nbr, fin_obj_typ_cd," +
+             "             FIN_OBJECT_CD, FIN_SUB_OBJ_CD"; 

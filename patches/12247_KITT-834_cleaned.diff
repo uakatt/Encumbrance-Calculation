@@ -1,0 +1,14 @@
+Index: work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12246)
++++ work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12247)
+@@ -300,7 +300,8 @@
+         originEntry.setReferenceFinancialDocumentNumber("");
+         originEntry.setReferenceFinancialSystemOriginationCode("");
+         originEntry.setReversalDate(null);
+-        originEntry.setTransactionEncumbranceUpdateCode("");
++        // not blanking this field out - the scrubber doesn't like it
++        //originEntry.setTransactionEncumbranceUpdateCode("");
+         originEntry.setPayPeriodEndDate(null);
+         originEntry.setTransactionTotalHours(null);
+         originEntry.setPayrollEndDateFiscalPeriodCode("");

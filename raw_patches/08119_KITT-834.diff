@@ -1,0 +1,63 @@
+Index: financial-system/kfs-cfg-dbs/trunk/update.xml
+===================================================================
+--- financial-system/kfs-cfg-dbs/trunk/update.xml	(revision 8118)
++++ financial-system/kfs-cfg-dbs/trunk/update.xml	(revision 8119)
+@@ -2,4 +2,5 @@
+ <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
++  <include file="update/KITT-834.xml"/>
+ </databaseChangeLog>
+\ No newline at end of file
+Index: financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml
+===================================================================
+--- financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml	(revision 0)
++++ financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml	(revision 8119)
+@@ -0,0 +1,21 @@
++<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
++                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
++  <!-- KITT-834 -->
++  <changeSet author="jhkeller" id="KITT-834-1">
++    <sql splitStatements="false" endDelimiter=""><![CDATA[
++    	DECLARE
++    		LedgerOnlyParent    NUMBER;
++    	BEGIN
++    		SELECT doc_typ_id
++    			INTO LedgerOnlyParent
++    			FROM krew_doc_typ_t
++    			WHERE doc_typ_nm = 'FSLO'
++    			  AND cur_ind = 1;
++			INSERT INTO krew_doc_typ_t(DOC_TYP_ID, PARNT_ID, DOC_TYP_NM, DOC_TYP_VER_NBR, ACTV_IND, CUR_IND, LBL, RTE_VER_NBR, VER_NBR, OBJ_ID)
++			  VALUES(krew_doc_hdr_s.NEXTVAL, LedgerOnlyParent, 'LLPE', 0, 1, 1, 'Labor Ledger Personnel Encumbrance', '2', 1, SYS_GUID());
++			COMMIT;
++		END;   
++]]></sql>
++  </changeSet>
++</databaseChangeLog>
+Index: financial-system/kfs-cfg-dbs/trunk/latest/dat/KREW.xml
+===================================================================
+--- financial-system/kfs-cfg-dbs/trunk/latest/dat/KREW.xml	(revision 8118)
++++ financial-system/kfs-cfg-dbs/trunk/latest/dat/KREW.xml	(revision 8119)
+@@ -112,4 +112,21 @@
+ END;
+ ]]></sql>
+   </changeSet>
++  <!-- KITT-834 -->
++  <changeSet author="jhkeller" id="KITT-834-1">
++    <sql splitStatements="false" endDelimiter=""><![CDATA[
++    	DECLARE
++    		LedgerOnlyParent    NUMBER;
++    	BEGIN
++    		SELECT doc_typ_id
++    			INTO LedgerOnlyParent
++    			FROM krew_doc_typ_t
++    			WHERE doc_typ_nm = 'FSLO'
++    			  AND cur_ind = 1;
++			INSERT INTO krew_doc_typ_t(DOC_TYP_ID, PARNT_ID, DOC_TYP_NM, DOC_TYP_VER_NBR, ACTV_IND, CUR_IND, LBL, RTE_VER_NBR, VER_NBR, OBJ_ID)
++			  VALUES(krew_doc_hdr_s.NEXTVAL, LedgerOnlyParent, 'LLPE', 0, 1, 1, 'Labor Ledger Personnel Encumbrance', '2', 1, SYS_GUID());
++			COMMIT;
++		END;   
++]]></sql>
++  </changeSet>
+ </databaseChangeLog>

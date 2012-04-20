@@ -1,0 +1,16 @@
+Index: work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12755)
++++ work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java	(revision 12756)
+@@ -295,7 +295,10 @@
+         originEntry.setTransactionLedgerEntryAmount(amount);
+         originEntry.setTransactionDebitCreditCode(debitCreditCode);
+         // set document type and other fields per the spec
+-        originEntry.setFinancialDocumentTypeCode(LABOR_PERSONNEL_ENCUMBRANCE_DOC_TYPE);
++        // only set the document type if not present in the file
++        if ( StringUtils.isBlank(originEntry.getFinancialDocumentTypeCode() ) ) {
++            originEntry.setFinancialDocumentTypeCode(LABOR_PERSONNEL_ENCUMBRANCE_DOC_TYPE);
++        }
+         originEntry.setFinancialSystemOriginationCode(LABOR_UACCESS_ORIGIN_CODE);
+         originEntry.setTransactionPostingDate( currentDate );
+         // ensure a number of other fields are blank per the spec

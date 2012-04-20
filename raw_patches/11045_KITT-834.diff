@@ -1,0 +1,67 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 11044)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java	(revision 11045)
+@@ -43,30 +43,39 @@
+     
+     public int compare(String originEntryLine1, String originEntryLine2) {
+         sb.setLength(0); // clear out the string buffer for the next use
+-        
++            
+ //        System.out.println( "Entry Line: " + originEntryLine1);
+-        
+-        sb.append(originEntryLine1.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
+-        sb.append(originEntryLine1.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
+-        sb.append(originEntryLine1.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+-        sb.append(originEntryLine1.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
+-        sb.append(originEntryLine1.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
+-        sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+-        sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
+-        sb.append(originEntryLine1.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
+-        originEntryLine1 = sb.toString();
+-
+-        sb.setLength(0); // clear out the string buffer for the next use
+-        sb.append(originEntryLine2.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
+-        sb.append(originEntryLine2.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
+-        sb.append(originEntryLine2.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
+-        sb.append(originEntryLine2.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
+-        sb.append(originEntryLine2.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
+-        sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
+-        sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
+-        sb.append(originEntryLine2.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
+-        originEntryLine2 = sb.toString();
+             
++        try {
++            sb.append(originEntryLine1.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++            sb.append(originEntryLine1.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
++            sb.append(originEntryLine1.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
++            sb.append(originEntryLine1.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
++            sb.append(originEntryLine1.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
++            sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
++            sb.append(originEntryLine1.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
++            sb.append(originEntryLine1.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++            originEntryLine1 = sb.toString();
++        } catch ( Exception ex ) {
++            LOG.error("Exception while attempting to sort Encumbrance origin entry record: \n" + originEntryLine1, ex);
++            return 1; // make this one sort to the end
++        }
++        try {
++            sb.setLength(0); // clear out the string buffer for the next use
++            sb.append(originEntryLine2.substring(EMPLID_POS,EMPLID_POS+EMPLID_LEN));
++            sb.append(originEntryLine2.substring(POSITION_NUMBER_POS,POSITION_NUMBER_POS+POSITION_NUMBER_LEN));
++            sb.append(originEntryLine2.substring(CHART_OF_ACCOUNTS_CODE_POS,CHART_OF_ACCOUNTS_CODE_POS+CHART_OF_ACCOUNTS_CODE_LEN));
++            sb.append(originEntryLine2.substring(ACCOUNT_NUMBER_POS,ACCOUNT_NUMBER_POS+ACCOUNT_NUMBER_LEN));
++            sb.append(originEntryLine2.substring(SUB_ACCOUNT_NUMBER_POS,SUB_ACCOUNT_NUMBER_POS+SUB_ACCOUNT_NUMBER_LEN));
++            sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_TYPE_CODE_POS,FINANCIAL_OBJECT_TYPE_CODE_POS+FINANCIAL_OBJECT_TYPE_CODE_LEN));
++            sb.append(originEntryLine2.substring(FINANCIAL_OBJECT_CODE_POS,FINANCIAL_OBJECT_CODE_POS+FINANCIAL_OBJECT_CODE_LEN));
++            sb.append(originEntryLine2.substring(FINANCIAL_SUB_OBJECT_CODE_POS,FINANCIAL_SUB_OBJECT_CODE_POS+FINANCIAL_SUB_OBJECT_CODE_LEN));
++            originEntryLine2 = sb.toString();
++                
++        } catch ( Exception ex ) {
++            LOG.error("Exception while attempting to sort Encumbrance origin entry record: \n" + originEntryLine2, ex);
++            return -1; // make the other line sort before this one
++        }
+         return originEntryLine1.compareTo(originEntryLine2);
+     }
+ }
+\ No newline at end of file
