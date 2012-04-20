@@ -1,0 +1,231 @@
+------------------------------------------------------------------------
+r8119 | jhkeller | 2010-02-27 19:26:15 -0700 (Sat, 27 Feb 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs-cfg-dbs/trunk/latest/dat/KREW.xml
+   A /financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml
+   M /financial-system/kfs-cfg-dbs/trunk/update.xml
+
+KITT-834 : adding new ledger only document type
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r8325 | jhkeller | 2010-03-07 16:10:38 -0700 (Sun, 07 Mar 2010) | 1 line
+Changed paths:
+   A /financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml (from /financial-system/kfs-cfg-dbs/trunk/update/KITT-834.xml:8119)
+   M /financial-system/kfs-cfg-dbs/trunk/update.xml
+
+KITT-834 : adding new ledger only document type for labor files from HCM
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r9287 | jhkeller | 2010-04-17 09:10:33 -0700 (Sat, 17 Apr 2010) | 1 line
+Changed paths:
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/dataaccess
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/report
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReport.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/service
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/service/impl
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+   M /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/org/kuali/rice/kns/web
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/org/kuali/rice/kns/web/filter
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/work/src/org/kuali/rice/kns/web/filter/DummyLoginFilter.java
+
+KITT-834 : checking in changes for labor encumbrance calculation to mod branch
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r9288 | jhkeller | 2010-04-17 09:11:16 -0700 (Sat, 17 Apr 2010) | 1 line
+Changed paths:
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   A /financial-system/kfs/branches/mod-jhkeller-mod-fp0008-01/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+
+KITT-834 : checking in changes for labor encumbrance calculation to mod branch
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r9307 | jhkeller | 2010-04-18 12:32:38 -0700 (Sun, 18 Apr 2010) | 1 line
+Changed paths:
+   A /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   A /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess
+   A /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl
+   A /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbcTest.java
+   A /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/LaborEncumbranceAdjustmentDao.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceJobReportData.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/report/LaborEncumbranceReportWriterService.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/LaborEncumbranceAdjustmentService.java
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+
+KITT-834 : labor distribution batch job to process incoming file from HCM and adjust salary encumbrance balances accordingly
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r11045 | jhkeller | 2010-07-10 15:04:10 -0700 (Sat, 10 Jul 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+
+KITT-834 : Made sort logic tolerant of misformatted lines/files.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r11189 | jhkeller | 2010-07-15 20:12:31 -0700 (Thu, 15 Jul 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+
+KITT-834 : corrected SQL for retrieving encumbrance balances
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r11539 | jhkeller | 2010-07-28 22:03:11 -0700 (Wed, 28 Jul 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   D /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborAppendEncumbranceTransactionsStep.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+
+KITT-834 : updated labor encumbrance calculations to process within ld/holding instead of ld/originEntry
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r11905 | jhkeller | 2010-08-09 21:57:48 -0700 (Mon, 09 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : updated service to add the done file when complete
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r12247 | jhkeller | 2010-08-19 20:59:54 -0700 (Thu, 19 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : updated code to not blank out the encumbrance update code
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r12292 | jhkeller | 2010-08-21 14:29:12 -0700 (Sat, 21 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborBuildEncumbranceBalanceFileStep.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/spring-ld.xml
+
+KITT-834 : updated timestamps and filenames of resulting files per user request
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r12493 | jhkeller | 2010-08-27 20:14:21 -0700 (Fri, 27 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborCalculateEncumbranceAdjustmentsStep.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborSortEncumbranceFileStep.java
+
+KITT-834 : changed "." to "-" before date per user request
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r12756 | jhkeller | 2010-08-31 20:30:57 -0700 (Tue, 31 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : updated to only set the document type code if not provided on the input file
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r12758 | jhkeller | 2010-08-31 20:42:58 -0700 (Tue, 31 Aug 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+
+KITT-834 : Update to ensure that leading spaces do not cause a sort problem
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14054 | jhkeller@CATNET.ARIZONA.EDU | 2010-10-17 11:53:14 -0700 (Sun, 17 Oct 2010) | 2 lines
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+
+KITT-834 : Fixed file name checking
+Updated test to properly fail per functional feedback on the copying of the description.  See comments on KITT-842
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14055 | jhkeller@CATNET.ARIZONA.EDU | 2010-10-17 12:13:13 -0700 (Sun, 17 Oct 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : Updated the encumbrance file to pull the person's name and use that for the description if fully removing a record (since there is no record in the input file from which to get a proper description.)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14487 | jhkeller@CATNET.ARIZONA.EDU | 2010-11-01 20:14:39 -0700 (Mon, 01 Nov 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/branches/mod-jhkeller/KITT-1750/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : updated to use L, F M format for the description when there is no input record
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14615 | jhkeller@CATNET.ARIZONA.EDU | 2010-11-11 09:20:35 -0700 (Thu, 11 Nov 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-842 : Updated to set positions 9-13 of the document number to "00000" on entries which are created from scratch by the process
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14616 | jhkeller@CATNET.ARIZONA.EDU | 2010-11-11 09:23:58 -0700 (Thu, 11 Nov 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-842 : Updated to set positions 9-14 of the document number to "200000" on entries which are created from scratch by the process
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14666 | jhkeller@CATNET.ARIZONA.EDU | 2010-11-15 20:43:29 -0700 (Mon, 15 Nov 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : updated to use L, F M format for the description when there is no input record
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r14695 | jhkeller@CATNET.ARIZONA.EDU | 2010-11-16 20:31:01 -0700 (Tue, 16 Nov 2010) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KITT-834 : Adjusted logic to first 9 + 00000 instead of first 8 + 200000
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r18271 | wliang@CATNET.ARIZONA.EDU | 2011-05-05 03:00:46 -0700 (Thu, 05 May 2011) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KFSI-3563 KITT-2402 modify comparator to not use object type code as a basis for comparison.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r18359 | wliang@CATNET.ARIZONA.EDU | 2011-05-07 00:39:59 -0700 (Sat, 07 May 2011) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceAdjustmentJobTest.java
+   M /financial-system/kfs/trunk/test/unit/src/edu/arizona/kfs/module/ld/batch/laborEncumbranceAdjustmentJobTest.properties
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/service/impl/LaborEncumbranceAdjustmentServiceImpl.java
+
+KFSI-3563 KITT-2402 fix handling of object type codes to allow job to generate blanks since HCM does not provide obj type codes
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r18360 | wliang@CATNET.ARIZONA.EDU | 2011-05-07 16:55:33 -0700 (Sat, 07 May 2011) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/LaborEncumbranceBalanceOriginEntrySortComparator.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/module/ld/batch/dataaccess/impl/LaborEncumbranceAdjustmentDaoJdbc.java
+
+KFSI-3563 KITT-2402 put the object type code at the end of the sort order
+------------------------------------------------------------------------
